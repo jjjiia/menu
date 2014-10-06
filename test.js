@@ -1,6 +1,6 @@
 var global = {
 	data:null,
-	searchTerm:"noodles"
+	searchTerm:"fresh"
 }
 $(function() {
 	// Window has loaded
@@ -11,9 +11,11 @@ $(function() {
 
 function dataDidLoad(error, data) {
 	global.data = data
-	formatMenuIntoSentences(global.data.toLowerCase())
+	formatMenuIntoSentences(global.data.toLowerCase(), global.searchTerm)
 	console.log(JSON.stringify(topLevelDictionary, null, 2));
-	d3.select("#containers").html(JSON.stringify(topLevelDictionary, null, 2))
+	
+	
+	d3.select("#containers").html(global.searchTerm+JSON.stringify(topLevelDictionary, null, 2))
 }
 
 var topLevelDictionary = {};
@@ -23,19 +25,29 @@ function insertWords(dictionary, words, searchTerm) {
     return;
   }
   //console.log(words)
-  if(searchStringInArray(searchTerm, words)>0){
-	  var firstWord = words[0].toLowerCase();
-	  var restOfWords = words.slice(1);
+  //isolate menu items with searchterm
+  //find index of search term in array
+	  var searchTermIndex = searchStringInArray(searchTerm, words)
+	 // console.log(searchTermIndex)
+	  
+	  var firstWord = words[searchTermIndex].toLowerCase();
+	  //console.log(firstWord)
+	  
+	  //slice off everything before searchTerm
+	  var restOfWords = words.slice(searchTermIndex+1);
+	  //console.log(restOfWords)
+	  
 	  var entry = dictionary[firstWord];
 	  	  
 	  if (!entry) {
 	    dictionary[firstWord] = {};
 	    entry = dictionary[firstWord];
 	  }
+	  
 	  insertWords(entry, restOfWords);
 	  insertWords(topLevelDictionary, restOfWords);
   }
-}
+
 
 function searchStringInArray (str, strArray) {
     for (var j=0; j<strArray.length; j++) {
@@ -44,12 +56,14 @@ function searchStringInArray (str, strArray) {
     return -1;
 }
 
-function formatMenuIntoSentences(input){
+function formatMenuIntoSentences(input, searchTerm){
 	//console.log(input)
 	var sentences = input.split(/\.\s*/g).map(function(sentence){return sentence.split(/\s+/g);});
 	//console.log(sentences)
 	for (var i =0; i < sentences.length; i++) {
-	  insertWords(topLevelDictionary, sentences[i], global.searchTerm);
+	    if(searchStringInArray(searchTerm, sentences[i])>0){
+	  	  	insertWords(topLevelDictionary, sentences[i], global.searchTerm);
+		}
 	}	
 }
 
