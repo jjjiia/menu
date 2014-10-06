@@ -1,6 +1,6 @@
 var global = {
 	data:null,
-	searchTerm:"fresh"
+	searchTerm:"with"
 }
 $(function() {
 	// Window has loaded
@@ -9,13 +9,27 @@ $(function() {
 		.await(dataDidLoad);
 })
 
+function searchFor() {
+    //document.getElementById("frm1").submit();
+	enteredTerm = frm1.searchTerm.value
+	d3.select("#output").html("")
+	console.log("searched for", enteredTerm )
+	if(frm1.searchTerm.value != ""){
+		
+		formatMenuIntoSentences(global.data.toLowerCase(), frm1.searchTerm.value)
+		
+		d3.select("#output").html(enteredTerm+JSON.stringify(topLevelDictionary, null, 2))
+	}
+	//clear the input from form
+	frm1.searchTerm.value = ""
+	topLevelDictionary = {}
+}
+
 function dataDidLoad(error, data) {
 	global.data = data
-	formatMenuIntoSentences(global.data.toLowerCase(), global.searchTerm)
-	console.log(JSON.stringify(topLevelDictionary, null, 2));
-	
-	
-	d3.select("#containers").html(global.searchTerm+JSON.stringify(topLevelDictionary, null, 2))
+	//formatMenuIntoSentences(global.data.toLowerCase(), global.searchTerm)
+	//console.log(JSON.stringify(topLevelDictionary, null, 2));	
+	//d3.select("#output").html(global.searchTerm+JSON.stringify(topLevelDictionary, null, 2))
 }
 
 var topLevelDictionary = {};
@@ -62,7 +76,7 @@ function formatMenuIntoSentences(input, searchTerm){
 	//console.log(sentences)
 	for (var i =0; i < sentences.length; i++) {
 	    if(searchStringInArray(searchTerm, sentences[i])>0){
-	  	  	insertWords(topLevelDictionary, sentences[i], global.searchTerm);
+	  	  	insertWords(topLevelDictionary, sentences[i], searchTerm);
 		}
 	}	
 }
