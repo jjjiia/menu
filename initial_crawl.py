@@ -60,11 +60,9 @@ def download_craigslist(page_count = 1, limit = 5):
 				test =  test.strip()				
 				test =" ".join(test.split())
 				data.append(test)
-            print data
-        #return data
-
-timestamped_filename = str(datetime.datetime.now()).replace("-", "_")
-currentdate = datetime.datetime.now().date()
+            cleanMenu = [str(l),data]
+            spamwriter.writerow(cleanMenu)
+            print l
 
 
 if __name__ == "__main__":
@@ -87,9 +85,9 @@ if __name__ == "__main__":
        
        print city
        titles = []
-       outputfile = open(timestamped_filename+".csv","wb")
+       outputfile = open("cambridge_menus.csv","wb")
        spamwriter = csv.writer(outputfile)
-       spamwriter.writerow("header")
+       spamwriter.writerow(["url","menu"])
        download_craigslist(int(page_count), int(limit))
 	
     elif len(sys.argv) >= 2 and sys.argv[1] == "serve":
