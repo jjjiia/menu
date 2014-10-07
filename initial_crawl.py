@@ -54,61 +54,13 @@ def download_craigslist(page_count = 1, limit = 5):
             table_body = menu.find_all('tbody')
             rows = menu.find_all('tr')
             for row in rows:
-				cols = row.find_all('td')
-				test = [ele.text.strip() for ele in cols]
-				data.append([ele for ele in cols if ele])
+				#print row
+				test = re.sub("<.*?>", " ", str(row))
+				test = re.sub(r"[\xc2\xa0\xe2\x80\x99]","",test)
+				test =  test.strip()				
+				test =" ".join(test.split())
+				data.append(test)
             print data
-            if len(sidesoup.findAll(class_="bigattr"))>0:
-                compensation = str(sidesoup.findAll(class_="bigattr")[0].text.encode("utf8").split(":")[1])
-            else:
-                compensation = "NA"
-            #description = str(sidesoup.findAll("section",id="postingbody")[0].text.encode("utf8"))
-            area = str(l.split("/")[1])
-            profession = str(l.split("/")[2])
-            if(sidesoup.body):
-                #print sidesoup.body
-                if (sidesoup.body.article):
-                  # print sidesoup.body.article
-                    if(sidesoup.body.article.section):
-                     #   print sidesoup.body.article.section
-                        
-                        if(sidesoup.body.article.section.section):
-                            time = str(sidesoup.body.article.section.section.p.time.string)
-            
-                        url = base+l
-                        title = str(sidesoup.body.article.section.h2.text[4:-1].encode("utf8"))
-                        postdate = time.split(" ")[0]
-                        description = str(sidesoup.findAll("section",id="postingbody")[0].text.encode("utf8")).lower()
-            
-                        keywordCountArray = []
-            
-                        outputArray = [area, profession, title, time, compensation, url]
-            
-                        for keyword in keywords:
-                            keywordcount = 0
-                            for word in description.split(" "):
-                                if keyword == word or keyword in title.lower():
-                                    keywordcount +=1
-                            #keywordCountArray.append(keywordcount)
-                            outputArray.append(keywordcount)
-                        #alreadydownloaded = downloaded.readlines()
-                        #print columnsChecked
-                        alreadydownloaded =[]
-                        if l in alreadydownloaded:
-                            duplicateCount+=1
-                            print "duplicate timestamp", duplicateCount
-            #                    print "duplicate", [area, profession, title, time, url]
-                        else:
-                            if title in titles:
-                                print "dup title"
-                            uniqueCount+=1
-                            print "unique count", uniqueCount
-                            alreadydownloaded.append(l)
-                            #print outputArray
-                            #print [area, profession, title, time, url]
-                            spamwriter.writerow(outputArray)
-                        if limit > 0 and len(data) >= limit:
-                            return data
         #return data
 
 timestamped_filename = str(datetime.datetime.now()).replace("-", "_")
