@@ -1,13 +1,25 @@
 var global = {
 	data:null,
-	searchTerm:"with"
+	searchTerm:"tofu"
 }
+var topLevelDictionary = {};
+
 $(function() {
 	// Window has loaded
 	queue()
 		.defer(d3.text, csv)
 		.await(dataDidLoad);
 })
+function dataDidLoad(error, data) {
+	global.data = data
+	formatMenuIntoSentences(global.data.toLowerCase(), global.searchTerm)
+	//console.log(JSON.stringify(topLevelDictionary, null, 2));	
+	d3.select("#output").html("<span style=\"color:red\">Showing results for: "+global.searchTerm+"</span></br></br>"+JSON.stringify(topLevelDictionary, null, 2))
+	frm1.searchTerm.value = ""
+	topLevelDictionary = {}
+}
+
+
 
 function searchFor() {
     //document.getElementById("frm1").submit();
@@ -18,21 +30,12 @@ function searchFor() {
 		
 		formatMenuIntoSentences(global.data.toLowerCase(), frm1.searchTerm.value)
 		
-		d3.select("#output").html(enteredTerm+JSON.stringify(topLevelDictionary, null, 2))
+		d3.select("#output").html("<span style=\"color:red\">You searched for: "+enteredTerm+"</span></br></br>"+JSON.stringify(topLevelDictionary, null, 2))
 	}
 	//clear the input from form
 	frm1.searchTerm.value = ""
 	topLevelDictionary = {}
 }
-
-function dataDidLoad(error, data) {
-	global.data = data
-	//formatMenuIntoSentences(global.data.toLowerCase(), global.searchTerm)
-	//console.log(JSON.stringify(topLevelDictionary, null, 2));	
-	//d3.select("#output").html(global.searchTerm+JSON.stringify(topLevelDictionary, null, 2))
-}
-
-var topLevelDictionary = {};
 
 function insertWords(dictionary, words, searchTerm) {
   if (words.length === 0) {
@@ -54,8 +57,10 @@ function insertWords(dictionary, words, searchTerm) {
 	  var entry = dictionary[firstWord];
 	  	  
 	  if (!entry) {
-	    dictionary[firstWord] = {};
-	    entry = dictionary[firstWord];
+	   dictionary[firstWord] = {"name":firstWord, "children":{}};
+	  // dictionary[firstWord]={}
+	    entry = dictionary[firstWord]["children"];
+		//console.log(dictionary)
 	  }
 	  
 	  insertWords(entry, restOfWords);

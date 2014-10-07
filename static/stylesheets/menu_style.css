@@ -38,10 +38,15 @@ a{
 	z-index: 9;
 	
 }
+#input{
+    font-size: 13px;
+	line-height:80%;
+}
 #submit {
 	border:1px solid #000;
     color: #555;
-    font-size: 14px;
+    font-size: 13px;
+	text-spacing:3px;
     text-decoration: none;
     cursor: pointer;
     border:none;
