@@ -11,12 +11,6 @@ import os
 duplicates = []
 latestDictionary = {}
 
-city = "cambridge"
-basecity = "boston"
-baseURL1 = ".menupages.com/restaurants/"
-baseURL2 = "/all-neighborhoods/all-cuisines/"
-page = 1
-
 
 def download_craigslist(page_count = 1, limit = 5):
     data = []
@@ -24,8 +18,12 @@ def download_craigslist(page_count = 1, limit = 5):
     uniqueCount = 0
     page_count = 7
     for i in range(page_count):
-        link = 'http://'+basecity+baseURL1 +city+baseURL2 + str(i+1)
-        print link
+		#for neightborhoods
+        baseURL2 = "/all-areas/"+city+"/all-cuisines/"
+        link = 'http://'+basecity+baseURL1+baseURL2 + str(i+1)
+		#for larger areas
+        #link = 'http://'+basecity+baseURL1 +city+baseURL2 + str(i+1)
+        #print link
         soup = BeautifulSoup(urllib2.urlopen(link).read())
         #x =  soup.body.article.section.div
         x =  soup.find("div",{"id":"searchresults"})
@@ -64,6 +62,12 @@ def download_craigslist(page_count = 1, limit = 5):
             spamwriter.writerow(cleanMenu)
             print l
 
+cities = ["brookline-brighton-allston","downtown-north-end", "fenway-symphony-jamaica-plain","back-bay-beacon-hill-south-end"]
+neighborhoods = ["cambridgeport","harvard-square","east-cambridge","central-sq-inman-sq","porter-sq-fresh-pond"]
+basecity = "boston"
+baseURL1 = ".menupages.com/restaurants/"
+baseURL2 = "/all-neighborhoods/all-cuisines/"
+
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2 and sys.argv[1] == "crawl":
@@ -83,13 +87,21 @@ if __name__ == "__main__":
         #print json.dumps(download_craigslist(int(page_count), int(limit)))
        # json.dump(json.dumps(download_craigslist(int(page_count), int(limit))), outfile)
        
-       print city
-       titles = []
-       outputfile = open("cambridge_menus.csv","wb")
-       spamwriter = csv.writer(outputfile)
-       spamwriter.writerow(["url","menu"])
-       download_craigslist(int(page_count), int(limit))
-	
+	   
+       for i in range(len(neighborhoods)):
+		   city = neighborhoods[i]
+		   print city
+		   outputfile = open(city+"_menus.csv","wb")
+		   spamwriter = csv.writer(outputfile)
+		   spamwriter.writerow(["url","menu"])
+		   while True:
+			   try:
+				   download_craigslist(int(page_count), int(limit))
+				   sys.exit(0)
+			   except Exception, e:
+				   i+=1
+				   print e 
+				   break
     elif len(sys.argv) >= 2 and sys.argv[1] == "serve":
         print "Server not implemented yet."
     else:
