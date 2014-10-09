@@ -1,6 +1,6 @@
 var global = {
 	data:null,
-	searchTerm:"tofu"
+	searchTerm:"chicken"
 }
 var topLevelDictionary = {};
 
@@ -8,21 +8,27 @@ $(function() {
 	// Window has loaded
 	queue()
 		.defer(d3.text, csv)
+		//.defer(d3.text, csv2)
+		
 		.await(dataDidLoad);
 })
-function dataDidLoad(error, data) {
-	global.data = data
-	//console.log(data)
+function dataDidLoad(error, data1, data2) {
+	global.data1 = data1
+	//global.data2 = data2
+	dictionary1 = {}
+	dictionary2 = {}
 	
-	formatMenuIntoSentences(global.data.toLowerCase(), global.searchTerm)
-	console.log(convertTree(topLevelDictionary)[0])
-	drawChart(convertTree(topLevelDictionary)[0])
-	//displayResults()
-	//console.log()
-	//draw(convertTree(topLevelDictionary))
+	formatMenuIntoSentences(global.data1.toLowerCase(), global.searchTerm, dictionary1)
+	drawChart(convertTree( dictionary1)[0],svg)
+	
+//	formatMenuIntoSentences(global.data2.toLowerCase(), global.searchTerm, dictionary2)
+//	drawChart(convertTree(dictionary2)[0],treesvg2)
+
 	frm1.searchTerm.value = ""
 	topLevelDictionary = {}
 }
+
+//TODO: expand all
 
 function displayResults(){
 	var displaystring = JSON.stringify(convertTree(topLevelDictionary)[0], null, 2)
@@ -34,11 +40,11 @@ function searchFor() {
     //document.getElementById("frm1").submit();
 	enteredTerm = frm1.searchTerm.value
 	d3.select("#output").html("")
-	console.log("searched for", enteredTerm )
+	console.log("searched for", enteredTerm)
 	if(frm1.searchTerm.value != ""){
 		
-		formatMenuIntoSentences(global.data.toLowerCase(), frm1.searchTerm.value)
-		drawChart(convertTree(topLevelDictionary)[0])
+		formatMenuIntoSentences(global.data1.toLowerCase(), global.searchTerm, dictionary1)
+		drawChart(convertTree( dictionary1)[0],svg)
 		//displayResults()
 	}
 	//clear the input from form
@@ -83,16 +89,42 @@ function searchStringInArray (str, strArray) {
     return -1;
 }
 
-function formatMenuIntoSentences(input, searchTerm){
+function formatMenuIntoSentences(input, searchTerm, dictionary){
 	//console.log(input)
 	var sentences = input.split(/\.\s*/g).map(function(sentence){return sentence.split(/\s+/g);});
 	//console.log(sentences)
 	for (var i =0; i < sentences.length; i++) {
 	    if(searchStringInArray(searchTerm, sentences[i])>0){
-	  	  	insertWords(topLevelDictionary, sentences[i], searchTerm);
+	  	  	insertWords(dictionary, sentences[i], searchTerm);
 		}
 	}	
 }
+
+var margin = {top: 20, right: 120, bottom: 20, left: 120},
+    width = 960 - margin.right - margin.left,
+    height = 600 - margin.top - margin.bottom;
+
+var i = 0,
+    duration = 250,
+    root;
+
+var tree = d3.layout.tree()
+    .size([height, width]);
+
+var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
+
+var svg = d3.select("#tree1").append("svg")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+var svg2 = d3.select("#tree2").append("svg2")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 function convertTree(dictionary){
 	return Object.keys(dictionary).map(function(key){
@@ -109,27 +141,7 @@ function convertTree(dictionary){
 	});
 }
 
-	var margin = {top: 20, right: 120, bottom: 20, left: 120},
-	    width = 960 - margin.right - margin.left,
-	    height = 800 - margin.top - margin.bottom;
-    
-	var i = 0,
-	    duration = 750,
-	    root;
-
-	var tree = d3.layout.tree()
-	    .size([height, width]);
-
-	var diagonal = d3.svg.diagonal()
-	    .projection(function(d) { return [d.y, d.x]; });
-
-	var svg = d3.select("body").append("svg")
-	    .attr("width", width + margin.right + margin.left)
-	    .attr("height", height + margin.top + margin.bottom)
-	  .append("g")
-	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-		
-		function drawChart(flare) {
+		function drawChart(flare, svg) {
 		  root = flare;
 		  console.log(flare)
 		  root.x0 = height / 2;
@@ -157,7 +169,7 @@ function convertTree(dictionary){
 		      links = tree.links(nodes);
 
 		  // Normalize for fixed-depth.
-		  nodes.forEach(function(d) { d.y = d.depth * 180; });
+		  nodes.forEach(function(d) { d.y = d.depth * 100; });
 
 		  // Update the nodes…
 		  var node = svg.selectAll("g.node")
@@ -190,8 +202,8 @@ function convertTree(dictionary){
 		      .style("fill", function(d) { return d._children ? "#666" : "#fff"; });
 
 		  nodeUpdate.select("text")
-		      .style("fill-opacity", 1);
-
+		      .style("fill-opacity", 1)
+			  //.sylte("font", 20)
 		  // Transition exiting nodes to the parent's new position.
 		  var nodeExit = node.exit().transition()
 		      .duration(duration)

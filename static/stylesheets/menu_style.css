@@ -7,11 +7,13 @@ html, body{
   font-size:14px;
   font-color:#222;
   min-width:1000px;
-  min-height:600px;
+  min-height:1000px;
+  
 }
 a{
 	font-color:#000;
 }
+
 #header{
 	position:fixed;
 	top:0px;
@@ -71,9 +73,37 @@ a{
 	
 }
 
-#containers {width:1000px;height:100%;position:relative;float:top;margin-top:100px;margin-left:100px;}
+#containers {width:1200px;height:100%;position:relative;float:top;margin-top:100px;margin-left:100px;}
 
-	
+.node {
+  cursor: pointer;
+}
+
+.node circle {
+  fill: #666;
+  stroke: #666;
+  stroke-width: .5px;
+}
+
+.node text {
+  font: 10px;
+  fill: #666;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-width: .5px;
+}
+#tree1{
+	position:absolute;
+	left:20px;
+	height:800px;
+}
+#tree2{
+	position:absolute;
+	left:200px;
+}
 #footer i.fa-plus {
   font-size: 10px;
   opacity: 0.5;
@@ -106,10 +136,6 @@ a{
 #essayContent table{margin-left:100px;margin-right:150px;font-size:11px;}
 #essayContent a {color: black;text-decoration: underline;z-index:90;}
 
-#companyList{font-size:14px;}
-#companyList table{table-layout:fixed;}
-#companyList td, #companyList th{text-align:left;vertical-align:top;}
-#companyList p{ margin-bottom: 10px;margin-left:30px;margin-right:120px;z-index:9999;}
 
 #feedback{position:relative; float:right;text-align:right;}
 #credit{position:relative; float:left;text-align:left;}
