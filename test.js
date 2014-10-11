@@ -26,7 +26,7 @@ function dataDidLoad(error, data1, data2) {
 	
 	formatMenuIntoSentences(global.data1.toLowerCase(), global.searchTerm, dictionary1)
 	drawChart(convertTree(dictionary1)[0],svg)
-	filterTree(convertTree(dictionary1)[0])
+	//filterTree(convertTree(dictionary1)[0])
 //	formatMenuIntoSentences(global.data2.toLowerCase(), global.searchTerm, dictionary2)
 //	drawChart(convertTree(dictionary2)[0],treesvg2)
 
@@ -42,6 +42,7 @@ function dataDidLoad(error, data1, data2) {
 //	
 //}
 
+
 function searchFor() {
     //document.getElementById("frm1").submit();
 	var enteredTerm = frm1.searchTerm.value
@@ -56,6 +57,12 @@ function searchFor() {
 	//clear the input from form
 	frm1.searchTerm.value = ""
 	dictionary1 = {}
+}
+
+document.onkeydown=function(){
+    if(window.event.keyCode=='13'){
+        searchFor();
+    }
 }
 
 
@@ -94,6 +101,11 @@ function searchStringInArray (str, strArray) {
     }
     return -1;
 }
+function searchWordInArray (str, strArray) {
+    for (var j=0; j<strArray.length; j++) {
+        return strArray[j].search(str)
+	}
+}
 
 function formatMenuIntoSentences(input, searchTerm, dictionary){
 	//console.log(input)
@@ -106,8 +118,8 @@ function formatMenuIntoSentences(input, searchTerm, dictionary){
 	}	
 }
 
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 1200 - margin.right - margin.left,
+var margin = {top: 20, right: 120, bottom: 20, left: 0},
+    width = 6000 - margin.right - margin.left,
     height = 600 - margin.top - margin.bottom;
 
 var i = 0,
@@ -121,7 +133,7 @@ var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
 var svg = d3.select("#tree1").append("svg")
-    .attr("width", width + margin.right + margin.left)
+   .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -151,11 +163,12 @@ function filterTree(tree){
 	console.log(newTree)
 }
 
+
 function drawChart(flare, svg) {
   root = flare;
   root.x0 = height / 2;
   root.y0 = 0;
-
+  console.log(flare)
   function collapse(d) {
     if (d.children) {
       d._children = d.children;
@@ -176,17 +189,18 @@ d3.select(self.frameElement).style("height", "800px");
 function update(source) {
 	//TODO:find max and min for each tree to use in scale
 	//console.log(source.children.length)
+
   var topLevelSize = source.count
-  var sizeScale = d3.scale.sqrt().domain([10, topLevelSize]).range([600,0]) 
+  var sizeScale = d3.scale.sqrt().domain([10, topLevelSize]).range([100,0]) 
   var textSizeScale = d3.scale.sqrt().domain([0, topLevelSize]).range([2,60]) 
-  	
+  var opacityScale = d3.scale.linear().domain([0, topLevelSize]).range([0,1]) 
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
  
   // Normalize for fixed-depth.
-  //nodes.forEach(function(d,i) { d.y = d.depth * i*5; });
-  nodes.forEach(function(d,i) {d.y = d.depth * sizeScale(d.count) });
+  nodes.forEach(function(d,i) { d.y = d.depth*150; });
+  //nodes.forEach(function(d,i) {d.y = d.depth * sizeScale(d.count) });
 
   // Update the nodes…
   var node = svg.selectAll("g.node")
@@ -203,12 +217,16 @@ function update(source) {
       .style("fill", function(d) { return d._children ? "#666" : "#fff"; });
 
   nodeEnter.append("text")
-      .attr("x", function(d) { return d.children || d._children ? 0 : 10; })
+      .attr("x", function(d) { return 2; return d.children || d._children ? 0 : 10; })
       .attr("dy", ".35em")
-      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .attr("text-anchor", function(d) { return "start";return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
-      .style("fill-opacity",.1)
-	  .style("font-size", function(d){return textSizeScale(d.count)})
+      .style("fill-opacity",function(d){
+		  return opacityScale(d.count)
+	  })
+	  .style("font-size", function(d){
+		  return textSizeScale(d.count)
+	  })
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
       .duration(duration)

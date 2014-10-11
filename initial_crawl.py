@@ -10,8 +10,13 @@ import datetime
 import os
 duplicates = []
 latestDictionary = {}
+import time
 
-
+basecity = "boston"
+baseURL1 = ".menupages.com/restaurants/"
+baseURL2 = "/all-neighborhoods/all-cuisines/"
+#neighborhoods = ["cambridge"]
+neighborhoods = ["downtown-north-end","back-bay-beacon-hill-south-end","fenway-symphony-jamaica-plain","brookline-brighton-allston"]
 def download_craigslist(page_count = 1, limit = 5):
     data = []
     duplicateCount = 0
@@ -19,10 +24,10 @@ def download_craigslist(page_count = 1, limit = 5):
     page_count = 7
     for i in range(page_count):
 		#for neightborhoods
-        baseURL2 = "/all-areas/"+city+"/all-cuisines/"
-        link = 'http://'+basecity+baseURL1+baseURL2 + str(i+1)
+        #link = 'http://'+basecity+baseURL1+baseURL2 + str(i+1)
+		
 		#for larger areas
-        #link = 'http://'+basecity+baseURL1 +city+baseURL2 + str(i+1)
+        link = 'http://'+basecity+baseURL1 +city+baseURL2 + str(i+1)
         #print link
         soup = BeautifulSoup(urllib2.urlopen(link).read())
         #x =  soup.body.article.section.div
@@ -52,22 +57,41 @@ def download_craigslist(page_count = 1, limit = 5):
             table_body = menu.find_all('tbody')
             rows = menu.find_all('tr')
             for row in rows:
-				print row
-				test = re.sub("<.*?>", " ", str(row))
+				#print row
+				test = re.sub("<.*?>", " ", str(row).lower())
+				test = re.sub("-", "", test)
+				
 				test = re.sub(r"[\xc2\xa0\xe2\x80\x99]","",test)
-				test =  test.strip()				
-				test =" ".join(test.split())
-				data.append(test)
-            cleanMenu = [str(l),data]
-            spamwriter.writerow(cleanMenu)
-            print l
+				test = re.sub('\d\d\W\d\d','',test)
+				test = re.sub('\d\W\d\d','',test)
+				test = re.sub('\W\d\d','',test)
 
+				test =  test.strip()				
+				#prices = re.search('\d\W\d\d', test)
+				#print prices
+				##prices = re.sub(".", " ", prices)
+				test = re.sub("&amp;","", test)
+				test = re.sub(","," ", test)
+				test = re.sub(":","", test)
+				test = re.sub("-","", test)
+				test = re.sub("\*","", test)
+				test = re.sub("\.","", test)
+				
+				test =" ".join(test.split())
+				
+				#print test
+				restaurantName = str(l).split("/")[2]
+				
+				
+				
+				#data.append(test+" "+restaurantName)
+            #cleanMenu = [str(l),data]
+				#print test+" "+restaurantName
+				spamwriter.writerow([test+" "+restaurantName])
+           	 	#print cleanMenu
+            print restaurantName
 #cities = ["brookline-brighton-allston","downtown-north-end", "fenway-symphony-jamaica-plain","back-bay-beacon-hill-south-end"]
 #neighborhoods = ["cambridgeport","harvard-square","east-cambridge","central-sq-inman-sq","porter-sq-fresh-pond"]
-basecity = "boston"
-baseURL1 = ".menupages.com/restaurants/"
-baseURL2 = "/all-neighborhoods/all-cuisines/"
-city = "cambridge"
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2 and sys.argv[1] == "crawl":
@@ -89,6 +113,7 @@ if __name__ == "__main__":
        
 	   
        for i in range(len(neighborhoods)):
+		   time.sleep(10)
 		   city = neighborhoods[i]
 		   print city
 		   outputfile = open(city+"_menus.csv","wb")
