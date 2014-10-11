@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  	  <meta charset="UTF-8">
+		
+		<title>Simple Tree</title>
+		<script src="wordtree.js"></script>
+		<script src="word-tree-layout.js"></script>
+		<script src="raphael.js"></script>
+		<script src="jquery.js"></script>
+
+
+	<script src="static/javascripts/d3.v3.min.js"></script>
+	<script src="static/javascripts/topojson.v1.min.js"></script>
+	<script src="static/javascripts/jquery.min.js"></script>
+	<script src="static/javascripts/d3.tip.v0.6.3.js"></script>
+	<script src="static/javascripts/fisheye.js"></script>
+	<script src="static/javascripts/underscore.js"></script>
+	
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+	<script src="static/javascripts/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="static/stylesheets/jquery-ui.css" />
+	<link rel="stylesheet" href="static/bootstrap-3.1.1-dist/css/bootstrap.min.css">
+	<script src="static/javascripts/jquery-ui.min.js"></script>
+	<link href="static/bootstrap-3.1.1-dist/css/bootstrap-glyphicons.css" rel="stylesheet">
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+	<link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
+
+	<link rel="stylesheet" type="text/css" href="static/stylesheets/menu_style.css"> </style>
+
+		<script>
+			var myTree = null;
+			var global = {
+				data:null,
+				searchTerm:"shrimp"
+			}
+			var csv = "cambridge_menus.csv"	
+			$(function() {
+				// Window has loaded
+				queue()
+					.defer(d3.text, csv)		
+					.await(dataDidLoad);
+			})
+			function dataDidLoad(error, data1) {
+				global.data = data1
+				//console.log(formatMenuIntoTreeData(global.data,global.searchTerm))
+				var formatedData = formatMenuIntoTreeData(global.data,global.searchTerm)
+				createTree(formatedData)
+			}
+			//$(document).ready(function(){createTree("")});
+			
+			
+			function formatMenuIntoTreeData(input, searchTerm){
+				var lefts = []
+				var rights = []
+				//console.log(input)
+				var context = searchTerm
+				var sentences = input.split(/\.\s*/g).map(function(sentence){return sentence.split(/\s+/g);});
+				//console.log(sentences)
+				for (var i =0; i < sentences.length; i++) {
+					var wordIndex = searchStringInArray(searchTerm, sentences[i])
+				    if(wordIndex > 0){
+				  	  	//console.log(sentences[i])
+						
+						var left = sentences[i].slice(0,wordIndex)
+						var right = sentences[i].slice(wordIndex+1)
+						lefts.push(left)
+						rights.push(right)
+						//console.log(left, right)
+						//var right = sentences[i][wordIndex,sentences[i].length()]
+					}
+				}
+				return({"context":context,"lefts":lefts,"rights":rights})	
+			}
+			
+			function searchStringInArray (str, strArray) {
+			    for (var j=0; j<strArray.length; j++) {
+			        if (strArray[j].match(str)) return j;
+			    }
+			    return -1;
+			}
+			
+			function createTree(data) {
+				console.log("context",data.context)
+				
+				var context = data.context;
+                                var lefts = data.lefts
+				for(var i = 0; i < lefts.length; i++){
+					lefts[i] = lefts[i].reverse();
+				}
+				var rights = data.rights;
+				
+				var w = 1200,
+				h = 1200,
+				detail = 100 /* % */;
+				var paper = Raphael("test", w, h);
+				makeWordTree(rights, context, detail, "test", w, h, WordTree.RO_LEFT, paper);	
+				makeWordTree(lefts, context, detail, "test", w, h, WordTree.RO_RIGHT, paper);				
+			}
+			
+		</script>
+	</head>
+	<body>
+		<div id="test"></div>
+	</body>
+</html>

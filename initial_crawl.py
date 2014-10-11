@@ -21,7 +21,7 @@ def download_craigslist(page_count = 1, limit = 5):
     data = []
     duplicateCount = 0
     uniqueCount = 0
-    page_count = 7
+    page_count = 10
     for i in range(page_count):
 		#for neightborhoods
         #link = 'http://'+basecity+baseURL1+baseURL2 + str(i+1)

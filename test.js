@@ -23,7 +23,6 @@ function dataDidLoad(error, data1, data2) {
 	global.data1 = data1
 	//global.data2 = data2
 	dictionary1 = {}
-	
 	formatMenuIntoSentences(global.data1.toLowerCase(), global.searchTerm, dictionary1)
 	drawChart(convertTree(dictionary1)[0],svg)
 	//filterTree(convertTree(dictionary1)[0])
@@ -65,12 +64,17 @@ document.onkeydown=function(){
     }
 }
 
+var restOfWords=null;
 
 function insertWords(dictionary, words, searchTerm) {
   if (words.length === 0) {
     return;
   }
-  //console.log(words)
+//  console.log(words.length)
+//  if (words.length<15){
+//	  console.log(restOfWords)
+//	  return
+//  }
   //isolate menu items with searchterm
   //find index of search term in array
 	  var searchTermIndex = searchStringInArray(searchTerm, words)
@@ -80,16 +84,18 @@ function insertWords(dictionary, words, searchTerm) {
 	  //console.log(firstWord)
 	  
 	  //slice off everything before searchTerm
-	  var restOfWords = words.slice(searchTermIndex+1);
+	  restOfWords = words.slice(searchTermIndex+1);
 	  //console.log(restOfWords)
 	  
 	  var entry = dictionary[firstWord];
-	  	  
+
+	  //if no key entry, make new
 	  if (!entry) {
 	   dictionary[firstWord] = {};
 	    entry = dictionary[firstWord];
 		//console.log(dictionary)
 	  }
+	  //make new dictionary with rest.
 	  insertWords(entry, restOfWords);
 	  //insertWords(topLevelDictionary, restOfWords);
   }
@@ -112,11 +118,46 @@ function formatMenuIntoSentences(input, searchTerm, dictionary){
 	var sentences = input.split(/\.\s*/g).map(function(sentence){return sentence.split(/\s+/g);});
 	//console.log(sentences)
 	for (var i =0; i < sentences.length; i++) {
-	    if(searchStringInArray(searchTerm, sentences[i])>0){
+	    if(searchStringInArray(searchTerm, sentences[i]) > 0){
 	  	  	insertWords(dictionary, sentences[i], searchTerm);
 		}
 	}	
 }
+
+
+function convertTree(dictionary){
+	//console.log(dictionary)
+	return Object.keys(dictionary).map(function(key){
+		var output = {
+			name: key,
+			children: convertTree(dictionary[key])
+		};
+		
+		var count = 0;
+		
+		for (var i=0; i<output.children.length; i++){
+			console.log(count)
+			console.log(output.children[i])
+			count += output.children[i].count + 1;
+		}
+		
+		output.count = count;
+		return output;
+	});
+}
+
+
+function filterTree(tree){
+	var newTree = _.filter(tree,  function(a){ 
+		console.log(a)
+		return a.count; 
+	});
+	console.log(newTree)
+}
+
+
+
+/////DRAWING BELOW
 
 var margin = {top: 20, right: 120, bottom: 20, left: 0},
     width = 6000 - margin.right - margin.left,
@@ -138,31 +179,6 @@ var svg = d3.select("#tree1").append("svg")
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	
-
-function convertTree(dictionary){
-	return Object.keys(dictionary).map(function(key){
-		var output = {
-			name: key,
-			children: convertTree(dictionary[key])
-		};
-		var count = 0;
-		for (var i=0; i<output.children.length; i++){
-			count += output.children[i].count + 1;
-		}
-		output.count = count;
-		return output;
-	});
-}
-
-
-function filterTree(tree){
-	var newTree = _.filter(tree,  function(a){ 
-		console.log(a)
-		return a.count; 
-	});
-	console.log(newTree)
-}
-
 
 function drawChart(flare, svg) {
   root = flare;
@@ -225,6 +241,7 @@ function update(source) {
 		  return opacityScale(d.count)
 	  })
 	  .style("font-size", function(d){
+		  return 12
 		  return textSizeScale(d.count)
 	  })
   // Transition nodes to their new position.
@@ -238,7 +255,6 @@ function update(source) {
 
   nodeUpdate.select("text")
       .style("fill-opacity", 1)
-	  //.sylte("font", 20)
   // Transition exiting nodes to the parent's new position.
   var nodeExit = node.exit().transition()
       .duration(duration)
