@@ -52,7 +52,7 @@ def download_craigslist(page_count = 1, limit = 5):
             table_body = menu.find_all('tbody')
             rows = menu.find_all('tr')
             for row in rows:
-				#print row
+				print row
 				test = re.sub("<.*?>", " ", str(row))
 				test = re.sub(r"[\xc2\xa0\xe2\x80\x99]","",test)
 				test =  test.strip()				
@@ -62,12 +62,12 @@ def download_craigslist(page_count = 1, limit = 5):
             spamwriter.writerow(cleanMenu)
             print l
 
-cities = ["brookline-brighton-allston","downtown-north-end", "fenway-symphony-jamaica-plain","back-bay-beacon-hill-south-end"]
-neighborhoods = ["cambridgeport","harvard-square","east-cambridge","central-sq-inman-sq","porter-sq-fresh-pond"]
+#cities = ["brookline-brighton-allston","downtown-north-end", "fenway-symphony-jamaica-plain","back-bay-beacon-hill-south-end"]
+#neighborhoods = ["cambridgeport","harvard-square","east-cambridge","central-sq-inman-sq","porter-sq-fresh-pond"]
 basecity = "boston"
 baseURL1 = ".menupages.com/restaurants/"
 baseURL2 = "/all-neighborhoods/all-cuisines/"
-
+city = "cambridge"
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2 and sys.argv[1] == "crawl":
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 		   print city
 		   outputfile = open(city+"_menus.csv","wb")
 		   spamwriter = csv.writer(outputfile)
-		   spamwriter.writerow(["url","menu"])
+		   #spamwriter.writerow(["url","menu"])
 		   while True:
 			   try:
 				   download_craigslist(int(page_count), int(limit))

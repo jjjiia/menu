@@ -25,8 +25,8 @@ function dataDidLoad(error, data1, data2) {
 	dictionary1 = {}
 	
 	formatMenuIntoSentences(global.data1.toLowerCase(), global.searchTerm, dictionary1)
-	drawChart(convertTree( dictionary1)[0],svg)
-	
+	drawChart(convertTree(dictionary1)[0],svg)
+	filterTree(convertTree(dictionary1)[0])
 //	formatMenuIntoSentences(global.data2.toLowerCase(), global.searchTerm, dictionary2)
 //	drawChart(convertTree(dictionary2)[0],treesvg2)
 
@@ -142,6 +142,15 @@ function convertTree(dictionary){
 	});
 }
 
+
+function filterTree(tree){
+	var newTree = _.filter(tree,  function(a){ 
+		console.log(a)
+		return a.count; 
+	});
+	console.log(newTree)
+}
+
 function drawChart(flare, svg) {
   root = flare;
   root.x0 = height / 2;
@@ -166,31 +175,18 @@ d3.select(self.frameElement).style("height", "800px");
 
 function update(source) {
 	//TODO:find max and min for each tree to use in scale
-  var sizeScale = d3.scale.sqrt().domain([10, 1200]).range([700,0]) 
-  var textSizeScale = d3.scale.sqrt().domain([10, 1200]).range([4,12]) 
+	//console.log(source.children.length)
+  var topLevelSize = source.count
+  var sizeScale = d3.scale.sqrt().domain([10, topLevelSize]).range([600,0]) 
+  var textSizeScale = d3.scale.sqrt().domain([0, topLevelSize]).range([2,60]) 
   	
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
-  var fisheye = d3.fisheye.circular()
-      .radius(200)
-      .distortion(2);
-
- svg.on("mousemove", function() {
-    fisheye.focus(d3.mouse(this));
-	node.each(function(d) { d.fisheye = fisheye(d); })
-	      .attr("cx", function(d) { return d.fisheye.x; })
-	      .attr("cy", function(d) { return d.fisheye.y; })
-	      .attr("r", function(d) { return d.fisheye.z * 4.5; });
-
-	  link.attr("x1", function(d) { return d.source.fisheye.x; })
-	      .attr("y1", function(d) { return d.source.fisheye.y; })
-	      .attr("x2", function(d) { return d.target.fisheye.x; })
-	      .attr("y2", function(d) { return d.target.fisheye.y; });
-  });
+ 
   // Normalize for fixed-depth.
   //nodes.forEach(function(d,i) { d.y = d.depth * i*5; });
-  nodes.forEach(function(d,i) {console.log(d.depth); d.y = d.depth * sizeScale(d.count) });
+  nodes.forEach(function(d,i) {d.y = d.depth * sizeScale(d.count) });
 
   // Update the nodes…
   var node = svg.selectAll("g.node")
