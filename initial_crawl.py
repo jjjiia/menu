@@ -15,8 +15,8 @@ import time
 basecity = "boston"
 baseURL1 = ".menupages.com/restaurants/"
 baseURL2 = "/all-neighborhoods/all-cuisines/"
-#neighborhoods = ["cambridge"]
-neighborhoods = ["downtown-north-end","back-bay-beacon-hill-south-end","fenway-symphony-jamaica-plain","brookline-brighton-allston"]
+neighborhoods = ["cambridge"]
+#neighborhoods = ["downtown-north-end","back-bay-beacon-hill-south-end","fenway-symphony-jamaica-plain","brookline-brighton-allston"]
 def download_craigslist(page_count = 1, limit = 5):
     data = []
     duplicateCount = 0

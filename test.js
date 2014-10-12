@@ -7,7 +7,7 @@
 
 var global = {
 	data:null,
-	searchTerm:"fresh"
+	searchTerm:"tamarind"
 }
 var topLevelDictionary = {};
 
@@ -24,6 +24,7 @@ function dataDidLoad(error, data1, data2) {
 	//global.data2 = data2
 	dictionary1 = {}
 	formatMenuIntoSentences(global.data1.toLowerCase(), global.searchTerm, dictionary1)
+	console.log(convertTree(dictionary1))
 	drawChart(convertTree(dictionary1)[0],svg)
 	//filterTree(convertTree(dictionary1)[0])
 //	formatMenuIntoSentences(global.data2.toLowerCase(), global.searchTerm, dictionary2)
@@ -46,10 +47,10 @@ function searchFor() {
     //document.getElementById("frm1").submit();
 	var enteredTerm = frm1.searchTerm.value
 	d3.select("#output").html("")
-	console.log("searched for", enteredTerm)
+	//console.log("searched for", enteredTerm)
 	if(frm1.searchTerm.value != ""){
 		formatMenuIntoSentences(global.data1.toLowerCase(), enteredTerm, dictionary1)
-		console.log(dictionary1)
+		//console.log(dictionary1)
 		drawChart(convertTree(dictionary1)[0],svg)
 		//displayResults()
 	}
@@ -66,53 +67,6 @@ document.onkeydown=function(){
 
 var restOfWords=null;
 
-function insertWords(dictionary, words, searchTerm) {
-  if (words.length === 0) {
-    return;
-  }
-//  console.log(words.length)
-//  if (words.length<15){
-//	  console.log(restOfWords)
-//	  return
-//  }
-  //isolate menu items with searchterm
-  //find index of search term in array
-	  var searchTermIndex = searchStringInArray(searchTerm, words)
-	 // console.log(searchTermIndex)
-	  
-	  var firstWord = words[searchTermIndex].toLowerCase();
-	  //console.log(firstWord)
-	  
-	  //slice off everything before searchTerm
-	  restOfWords = words.slice(searchTermIndex+1);
-	  //console.log(restOfWords)
-	  
-	  var entry = dictionary[firstWord];
-
-	  //if no key entry, make new
-	  if (!entry) {
-	   dictionary[firstWord] = {};
-	    entry = dictionary[firstWord];
-		//console.log(dictionary)
-	  }
-	  //make new dictionary with rest.
-	  insertWords(entry, restOfWords);
-	  //insertWords(topLevelDictionary, restOfWords);
-  }
-
-
-function searchStringInArray (str, strArray) {
-    for (var j=0; j<strArray.length; j++) {
-        if (strArray[j].match(str)) return j;
-    }
-    return -1;
-}
-function searchWordInArray (str, strArray) {
-    for (var j=0; j<strArray.length; j++) {
-        return strArray[j].search(str)
-	}
-}
-
 function formatMenuIntoSentences(input, searchTerm, dictionary){
 	//console.log(input)
 	var sentences = input.split(/\.\s*/g).map(function(sentence){return sentence.split(/\s+/g);});
@@ -124,37 +78,53 @@ function formatMenuIntoSentences(input, searchTerm, dictionary){
 	}	
 }
 
+function insertWords(dictionary, words, searchTerm) {
+  if (words.length === 0) {
+    return;
+  }
+  
+  var searchTermIndex = searchStringInArray(searchTerm, words)	  
+  var firstWord = words[searchTermIndex].toLowerCase();
+  restOfWords = words.slice(searchTermIndex+1);
+  var entry = dictionary[firstWord];
+  if (!entry) {
+   	dictionary[firstWord] = {};
+    entry = dictionary[firstWord];
+  }
+  while(restOfWords.length >5){
+	  insertWords(entry, restOfWords);
+  	
+  }
+}
 
+//TODO: make word match, not string match
+//function searchStringInArray (str, strArray) {
+//    var result = strArray.indexOf(str)
+//	console.log(result)
+//	return result
+//}
+
+function searchStringInArray (str, strArray) {
+    for (var j=0; j<strArray.length; j++) {
+        if (strArray[j].match(str)) return j;
+    }
+    return -1;
+}
 function convertTree(dictionary){
-	//console.log(dictionary)
 	return Object.keys(dictionary).map(function(key){
 		var output = {
 			name: key,
 			children: convertTree(dictionary[key])
 		};
-		
 		var count = 0;
-		
 		for (var i=0; i<output.children.length; i++){
-			console.log(count)
-			console.log(output.children[i])
+			console.log(output.children[i].count)
 			count += output.children[i].count + 1;
 		}
-		
 		output.count = count;
 		return output;
 	});
 }
-
-
-function filterTree(tree){
-	var newTree = _.filter(tree,  function(a){ 
-		console.log(a)
-		return a.count; 
-	});
-	console.log(newTree)
-}
-
 
 
 /////DRAWING BELOW
@@ -185,7 +155,7 @@ function drawChart(flare, svg) {
   root.x0 = height / 2;
   root.y0 = 0;
   console.log(flare)
-  function collapse(d) {
+function collapse(d) {
     if (d.children) {
       d._children = d.children;
       d._children.forEach(collapse);
@@ -215,12 +185,12 @@ function update(source) {
       links = tree.links(nodes);
  
   // Normalize for fixed-depth.
-  nodes.forEach(function(d,i) { d.y = d.depth*150; });
+  nodes.forEach(function(d,i){d.y = d.depth*150;});
   //nodes.forEach(function(d,i) {d.y = d.depth * sizeScale(d.count) });
 
   // Update the nodes…
   var node = svg.selectAll("g.node")
-      .data(nodes, function(d) {  return d.id || (d.id = ++i); });
+      .data(nodes, function(d){return d.id || (d.id = ++i);});
 
   // Enter any new nodes at the parent's previous position.
   var nodeEnter = node.enter().append("g")
@@ -234,14 +204,17 @@ function update(source) {
 
   nodeEnter.append("text")
       .attr("x", function(d) { return 2; return d.children || d._children ? 0 : 10; })
-      .attr("dy", ".35em")
+      .attr("dy", function(d){
+		 // return 12
+		  return textSizeScale(d.count)
+	  })
       .attr("text-anchor", function(d) { return "start";return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
       .style("fill-opacity",function(d){
 		  return opacityScale(d.count)
 	  })
 	  .style("font-size", function(d){
-		  return 12
+		 // return 12
 		  return textSizeScale(d.count)
 	  })
   // Transition nodes to their new position.
