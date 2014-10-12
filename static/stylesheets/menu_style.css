@@ -100,12 +100,18 @@ a{
 }
 #tree1{
 	position:absolute;
-	left:20px;
+	left:510px;
 	height:800px;
+	width:700px;
+	top:100px;
 }
 #tree2{
 	position:absolute;
-	left:200px;
+	height:800px;
+	width:500px;
+	left:0px;
+	top:100px;
+	
 }
 #footer i.fa-plus {
   font-size: 10px;
