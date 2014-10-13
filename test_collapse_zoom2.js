@@ -45,10 +45,9 @@ function UpdateAll(enteredTerm){
 	formatMenuIntoSentences(global.data1.toLowerCase(), enteredTerm)
 	d3.select("#tree1 svg").remove()
 	joinOnlyChildren(convertTree(rightDictionary)[0])
-    var baseSvg1 = d3.select("#tree1").append("svg")
-	var baseSvg2 = d3.select("#tree2").append("svg")
-	drawChart(convertTree(rightDictionary)[0],"right", baseSvg1)
-	//drawChart(convertTree(leftDictionary)[0],"left", baseSvg2)
+    var baseSvg = d3.select("#tree1").append("svg")
+	var data = [convertTree(rightDictionary)[0],convertTree(leftDictionary)[0]]
+	drawChart(data, baseSvg)
 	
 	frm1.searchTerm.value = ""
 	rightDictionary = {}
@@ -158,24 +157,22 @@ function convertTree(dictionary){
 
 function joinOnlyChildren(dictionary){
 	for(var i =0; i < dictionary.children.length; i++){
-		//console.log(dictionary.children[i].sibling, dictionary.children[i].count)
+		console.log(dictionary.children[i].sibling, dictionary.children[i].count)
 		if(dictionary.children[i].sibling ==0 && dictionary.children[i].count ==1){
 			dictionary.children[i].name = dictionary.children[i].name +" "+ dictionary.children[i].children[0].name
 			delete dictionary.children[i].children
-			dictionary.children[i].sibling = dictionary.children[i].sibling - 1
-			dictionary.children[i].count = dictionary.children[i].count -1
 		}
-}
+	}
 	console.log(dictionary)
 	return dictionary
 }
 /////DRAWING BELOW
-var width = 900
-var height =400
+var width = 5000
+var height =1200
 
 
 	//attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-function drawChart(treeData, side, baseSvg) {
+function drawChart(treeData, baseSvg) {
 	// Calculate total nodes, max label length
 	    var totalNodes = 0;
 	    var maxLabelLength = 0;
@@ -199,18 +196,14 @@ function drawChart(treeData, side, baseSvg) {
 	        .size([viewerHeight, viewerWidth]);
 
 	    // define a d3 diagonal projection for use by the node paths later on.
-	   
-		if(side == "right"){
-		    var diagonal = d3.svg.diagonal()
-		        .projection(function(d) {
-		            return [d.y, d.x];
-		        });
-		}else{
-		    var diagonal = d3.svg.diagonal()
-		        .projection(function(d) {
-		            return [-d.y, d.x];
-		        });
-		}
+	    var diagonal = d3.svg.diagonal()
+	        .projection(function(d) {
+	            return [d.y, d.x];
+	        });
+	    var diagonalLeft = d3.svg.diagonal()
+	        .projection(function(d) {
+	            return [-d.y, d.x];
+	        });
 	   
 	    // A recursive helper function for performing some setup by walking through all nodes
 
@@ -229,7 +222,7 @@ function drawChart(treeData, side, baseSvg) {
 	    }
 
 	    // Call visit function to establish maxLabelLength
-	    visit(treeData, function(d) {
+	    visit(treeData[0], function(d) {
 	        totalNodes++;
 	        maxLabelLength = Math.max(d.name.length, maxLabelLength);
 
@@ -242,11 +235,12 @@ function drawChart(treeData, side, baseSvg) {
 		// sort tree according to node count
 	    function sortTree() {
 	        tree.sort(function(a, b) {
-	            return b.sibling > a.sibling ? 1 : -1;
+	            return b.count > a.count ? 1 : -1;
 	        });
 	    }
 	    // Sort the tree initially incase the JSON isn't in a sorted order.
 	    sortTree();
+
 	    // TODO: Pan function, can be better implemented.
 
 	    function pan(domNode, direction) {
@@ -537,7 +531,7 @@ function drawChart(treeData, side, baseSvg) {
 	            }
 	        };
 	        childCount(0, root);
-	        var newHeight = d3.max(levelWidth) * 14; // 25 pixels per line  
+	        var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
 	        tree = tree.size([newHeight, viewerWidth]);
 
 	        // Compute the new tree layout.
@@ -546,8 +540,7 @@ function drawChart(treeData, side, baseSvg) {
 
 	        // Set widths between levels based on maxLabelLength.
 	        nodes.forEach(function(d) {
-				console.log(d.name.length)
-	            d.y = (d.depth * (maxLabelLength * 7)); //maxLabelLength * 10px
+	            d.y = (d.depth * (maxLabelLength * 10)); //maxLabelLength * 10px
 	            // alternatively to keep a fixed scale one can set a fixed depth per level
 	            // Normalize for fixed-depth by commenting out below line
 	            // d.y = (d.depth * 500); //500px per level.
@@ -593,7 +586,7 @@ function drawChart(treeData, side, baseSvg) {
 	        nodeEnter.append("circle")
 	            .attr('class', 'ghostCircle')
 	            .attr("r", 0)
-	            .attr("opacity", 0.1) // change this to zero to hide the target area
+	            .attr("opacity", 0.2) // change this to zero to hide the target area
 	        .style("fill", "red")
 	            .attr('pointer-events', 'mouseover')
 	            .on("mouseover", function(node) {
@@ -606,7 +599,7 @@ function drawChart(treeData, side, baseSvg) {
 	        // Update the text to reflect whether node has children or not.
 	        node.select('text')
 	            .attr("x", function(d) {
-	                return d.children || d._children ? -4 : 4;
+	                return d.children || d._children ? -10 : 10;
 	            })
 	            .attr("text-anchor", function(d) {
 	                return d.children || d._children ? "end" : "start";
@@ -626,12 +619,7 @@ function drawChart(treeData, side, baseSvg) {
 	        var nodeUpdate = node.transition()
 	            .duration(duration)
 	            .attr("transform", function(d) {
-					if(side == "left"){
 		                return "translate(" + "-"+d.y + "," + d.x + ")";
-						
-					}else if (side == "right"){
-		                return "translate(" + d.y + "," + d.x + ")";
-					}
 	            });
 
 	        // Fade the text in
@@ -671,12 +659,26 @@ function drawChart(treeData, side, baseSvg) {
 	                    target: o
 	                });
 	            });
-
+	        link.enter().insert("path", "g")
+	            .attr("class", "link")
+	            .attr("d", function(d) {
+	                var o = {
+	                    x: source.x0,
+	                    y: source.y0
+	                };
+	                return diagonalLeft({
+	                    source: o,
+	                    target: o
+	                });
+	            });
 	        // Transition links to their new position.
 	        link.transition()
 	            .duration(duration)
+	            .attr("d", diagonalLeft);
+	        link.transition()
+	            .duration(duration)
 	            .attr("d", diagonal);
-
+				
 	        // Transition exiting nodes to the parent's new position.
 	        link.exit().transition()
 	            .duration(duration)
@@ -702,8 +704,16 @@ function drawChart(treeData, side, baseSvg) {
 	    // Append a group which holds all nodes and which the zoom Listener can act upon.
 	    var svgGroup = baseSvg.append("g");
 
-	    // Define the root
-	    root = treeData;
+	    // Define the roots
+	    root = treeData[0];
+	    root.x0 = viewerHeight / 2;
+	    root.y0 = 0;
+
+	    // Layout the tree initially and center on the root node.
+	    update(root);
+	    centerNode(root);
+		
+	    root = treeData[1];
 	    root.x0 = viewerHeight / 2;
 	    root.y0 = 0;
 

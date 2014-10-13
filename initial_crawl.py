@@ -87,7 +87,7 @@ def download_craigslist(page_count = 1, limit = 5):
 				#data.append(test+" "+restaurantName)
             #cleanMenu = [str(l),data]
 				#print test+" "+restaurantName
-				spamwriter.writerow([test+" "+restaurantName])
+				spamwriter.writerow([test+"."])
            	 	#print cleanMenu
             print restaurantName
 #cities = ["brookline-brighton-allston","downtown-north-end", "fenway-symphony-jamaica-plain","back-bay-beacon-hill-south-end"]
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 		   time.sleep(10)
 		   city = neighborhoods[i]
 		   print city
-		   outputfile = open(city+"_menus.csv","wb")
+		   outputfile = open(city+"_menus_noRes.csv","wb")
 		   spamwriter = csv.writer(outputfile)
 		   #spamwriter.writerow(["url","menu"])
 		   while True:
