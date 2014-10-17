@@ -152,6 +152,7 @@ function convertTree(dictionary){
 		}
 		output.count = count;
 		output.sibling = sibling
+		console.log(output)
 		return output;
 	});
 }
