@@ -7,9 +7,14 @@
 
 var global = {
 	data:null,
-	searchTerm:"tamarind"
+	searchTerm:"fresh"
 }
 var topLevelDictionary = {};
+var fresh = "fresh";
+var fried = "fried";
+var chicken = "chicken";
+var special = "special";
+var vegetarian = "vegetarian";
 
 $(function() {
 	// Window has loaded
@@ -45,7 +50,7 @@ function UpdateAll(enteredTerm){
 	formatMenuIntoSentences(global.data1.toLowerCase(), enteredTerm)
 	d3.select("#tree1 svg").remove()
 	//joinOnlyChildren(convertTree(rightDictionary)[0])
-    var baseSvg = d3.select("#tree1").append("svg").attr("width", 1200).attr("height", 800)
+    var baseSvg = d3.select("#tree1").append("svg").attr("width", 1200).attr("height", 900)
 	var baseGroup = baseSvg.append("g")
 	var rightGroup = baseGroup.append("g")
 	var leftGroup = baseGroup.append("g")
@@ -58,7 +63,7 @@ function UpdateAll(enteredTerm){
 	
 	//drawChart(treeData, baseSvg, svgGroup, side)
 	drawChart(rightData, baseSvg, rightGroup, "right")
-	//drawChart(leftData, baseSvg, leftGroup, "left")
+	drawChart(leftData, baseSvg, leftGroup, "left")
 	
 	frm1.searchTerm.value = ""
 	rightDictionary = {}
@@ -80,9 +85,16 @@ function flattenTree(tree, append) {
 		}
 		tree.children = list[0].children
 	}
+	sortTree()
 	return tree;
 }
 
+function sortTree() {
+    tree.sort(function(a, b) {
+        return b.name > a.name ? 1 : -1;
+//        return b.sibling > a.sibling ? 1 : -1;	
+    });
+}
 function searchFor() {
     //document.getElementById("frm1").submit();
 	d3.select("#output").html("")
@@ -126,9 +138,7 @@ function formatMenuIntoSentences(input, searchTerm){
 function insertWords(dictionary, words, searchTerm) {
   if (words.length === 0) {
     return;
-  }
-  
-  
+  }  
   var searchTermIndex = searchStringInArray(searchTerm, words)	  
   var firstWord = words[searchTermIndex].toLowerCase();
   restOfWords = words.slice(searchTermIndex+1);
@@ -140,22 +150,7 @@ function insertWords(dictionary, words, searchTerm) {
     entry = dictionary[firstWord];
   }
   insertWords(entry, restOfWords);
-  
- // if(restOfWords.length > 2){
- //	  insertWords(entry, restOfWords);
- // }else{
- //	dictionary[restOfWords] = {}  
- // 	entry = dictionary[restOfWords];
- // }
-  
 }
-
-//TODO: make word match, not string match
-//function searchStringInArray (str, strArray) {
-//    var result = strArray.indexOf(str)
-//	console.log(result)
-//	return result
-//}
 
 function searchStringInArray (str, strArray) {
     for (var j=0; j<strArray.length; j++) {
@@ -191,7 +186,7 @@ function convertTree(dictionary){
 var width = 1200
 var height =600
 var tree = d3.layout.tree()
-    .size([height, width]);
+    .size([height-20, width]);
 	
 var i = 0,
     duration = 250,
@@ -210,7 +205,7 @@ function drawChart(treeData, baseSvg, subGroup, side) {
 	      d.children = null;
 	    }
 	  }
-	// root.children.forEach(collapse);
+	 //root.children.forEach(collapse);
  update(root, baseSvg, subGroup, side);
 }	
 
@@ -222,8 +217,7 @@ function update(source, svg, subGroup, side) {
 			subGroup.attr("transform", "translate(" + parseInt(width/2) + "," + 0 + ")");
 		}else{
 			subGroup.attr("transform", "translate(" + width/2 + "," + 0 + ")");
-				
-			}
+		}
 			
 		
 	var diagonal = d3.svg.diagonal()
@@ -258,17 +252,26 @@ function update(source, svg, subGroup, side) {
       .on("click", click);
 
   nodeEnter.append("circle")
-      .attr("r", 1e-6)
+      .attr("r", 0)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+ 
+  var textSizeScale = d3.scale.sqrt().domain([0,400]).range([0,50])
+  var textOpacityScale = d3.scale.linear().domain([0,400]).range([0,1])
 
   nodeEnter.append("text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return "start"; })
-	  
+	  .attr("font-size", function(d) { return textSizeScale(d.sibling); })
       //.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6);
+      .style("fill-opacity",function(d){ 
+		  if(d.depth == 0){
+			  console.log(d.depth)
+			  return 0
+		  }
+		  return textOpacityScale(d.sibling)
+	  })
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
@@ -289,7 +292,7 @@ function update(source, svg, subGroup, side) {
       .remove();
 
   nodeExit.select("circle")
-      .attr("r", 1e-6);
+      .attr("r", 0);
 
   nodeExit.select("text")
       .style("fill-opacity", 1e-6);
@@ -338,3 +341,31 @@ function click(d) {
   }
   update(d);
 }
+
+
+var essayBoxShown = false;
+ $('#showMore').click(function(e){
+     e.preventDefault();
+     essayBoxShown = !essayBoxShown;
+     if (essayBoxShown) {
+         $('#essayBox').css('display', 'block');
+         $('#essayBox').animate({'opacity':1.0}, 500);
+         $(this).text(' ... view map ');
+     } else {
+         closeEssayBox();
+         $(this).text(' ... more ');
+     }
+   })
+   $('#essayBox-close').click(function(){
+//	   console.log("close")
+     closeEssayBox();
+     $('#showMore').text(' ... more ');
+   });
+
+
+  function closeEssayBox(){
+   $('#essayBox').animate({'opacity':0.0}, 500, function () {
+     $('#essayBox').css('display', 'none');
+   })
+   essayBoxShown = false;
+ }

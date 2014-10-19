@@ -44,10 +44,12 @@ function dataDidLoad(error, data1, data2) {
 function UpdateAll(enteredTerm){
 	formatMenuIntoSentences(global.data1.toLowerCase(), enteredTerm)
 	d3.select("#tree1 svg").remove()
-	joinOnlyChildren(convertTree(rightDictionary)[0])
     var baseSvg1 = d3.select("#tree1").append("svg")
 	var baseSvg2 = d3.select("#tree2").append("svg")
-	drawChart(convertTree(rightDictionary)[0],"right", baseSvg1)
+	
+	rightData = flattenTree(convertTree(rightDictionary)[0], true)
+	
+	drawChart(rightData,"right", baseSvg1)
 	//drawChart(convertTree(leftDictionary)[0],"left", baseSvg2)
 	
 	frm1.searchTerm.value = ""
@@ -128,6 +130,24 @@ function insertWords(dictionary, words, searchTerm) {
 //	console.log(result)
 //	return result
 //}
+function flattenTree(tree, append) {
+	var list = []
+	
+	for(var i in tree.children) {
+		var child = tree.children[i]
+		list.push(flattenTree(child, append))
+	}
+	if(list.length == 1) {
+		if(append) {
+			tree.name = tree.name + " " + list[0].name
+		} else {
+			tree.name = list[0].name + " " + tree.name
+		}
+		tree.children = list[0].children
+	}
+	//sortTree()
+	return tree;
+}
 
 function searchStringInArray (str, strArray) {
     for (var j=0; j<strArray.length; j++) {
@@ -173,7 +193,13 @@ function joinOnlyChildren(dictionary){
 /////DRAWING BELOW
 var width = 900
 var height =400
-
+function collapse(d) {
+    if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+    }
+  }
 
 	//attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 function drawChart(treeData, side, baseSvg) {
@@ -212,6 +238,7 @@ function drawChart(treeData, side, baseSvg) {
 		            return [-d.y, d.x];
 		        });
 		}
+      	treeData.children.forEach(collapse);
 	   
 	    // A recursive helper function for performing some setup by walking through all nodes
 
