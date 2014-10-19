@@ -53,13 +53,34 @@ function UpdateAll(enteredTerm){
 	var rightData = convertTree(rightDictionary)[0]
 	var leftData = convertTree(leftDictionary)[0]
 	
+	rightData = flattenTree(rightData, true)
+	leftData = flattenTree(leftData, false)
+	
 	//drawChart(treeData, baseSvg, svgGroup, side)
 	drawChart(rightData, baseSvg, rightGroup, "right")
-	drawChart(leftData, baseSvg, leftGroup, "left")
+	//drawChart(leftData, baseSvg, leftGroup, "left")
 	
 	frm1.searchTerm.value = ""
 	rightDictionary = {}
 	leftDictionary = {}
+}
+
+function flattenTree(tree, append) {
+	var list = []
+	
+	for(var i in tree.children) {
+		var child = tree.children[i]
+		list.push(flattenTree(child, append))
+	}
+	if(list.length == 1) {
+		if(append) {
+			tree.name = tree.name + " " + list[0].name
+		} else {
+			tree.name = list[0].name + " " + tree.name
+		}
+		tree.children = list[0].children
+	}
+	return tree;
 }
 
 function searchFor() {
@@ -143,7 +164,7 @@ function searchStringInArray (str, strArray) {
     return -1;
 }
 function convertTree(dictionary){
-	return Object.keys(dictionary).map(function(key){
+	var tree = Object.keys(dictionary).map(function(key){
 		var output = {
 			name: key,
 			children: convertTree(dictionary[key])
@@ -159,27 +180,11 @@ function convertTree(dictionary){
 		}
 		output.count = count;
 		output.sibling = sibling
-		if(output.count == 1){
-  			output.children=flattenTree(output.children)
-			console.log("flatten")
-		}
-		console.log(output)
+		
 		return output;
 	});
-}
-function flattenChildren(tree) {
-return tree;
-}
-function flattenTree(tree){
-if(tree.name == undefined) {
-return {
-name: ""
-}
-}
 
-var name = tree.name
-var flattenedChildren = flattenTree(tree.children)
-return{name:name+" "+ flattenedChildren.name}
+	return tree
 }
 
 /////DRAWING BELOW
@@ -205,7 +210,7 @@ function drawChart(treeData, baseSvg, subGroup, side) {
 	      d.children = null;
 	    }
 	  }
-	  //root.children.forEach(collapse);
+	// root.children.forEach(collapse);
  update(root, baseSvg, subGroup, side);
 }	
 
@@ -259,7 +264,9 @@ function update(source, svg, subGroup, side) {
   nodeEnter.append("text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
       .attr("dy", ".35em")
-      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .attr("text-anchor", function(d) { return "start"; })
+	  
+      //.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
       .style("fill-opacity", 1e-6);
 

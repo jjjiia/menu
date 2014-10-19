@@ -156,5 +156,5 @@ function makeContext(data,type, which){
 function makeWordTree(sentences, context, detail, container, width, height, direction, paper){
 	var tree = makeTree(sentences, 1, detail, direction);
 	console.log(tree)
-	//return displayTree(context, tree, container, width, height, direction, paper)
+	return displayTree(context, tree, container, width, height, direction, paper)
 }
