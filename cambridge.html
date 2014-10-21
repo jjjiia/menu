@@ -37,14 +37,7 @@
 <body>
 	
 	<div id="containers">
-		<div id = "tree1"></div>
-		<div id = "input">
-			<form id="frm1" >
-				Search for: <input type="text" name="searchTerm"> 
-				<input type="button" onclick="searchFor()" value="Submit" name="submit" id="submit">
-			</form>
-			<br/>
-		</div>
+		
 	</div>
 	
 	<div id = "header">
@@ -52,13 +45,29 @@
 			<a id="logo" href="http://youarehere.cc"><img src="static/images/logo.jpg" style="width: 60px"></a>
 		</div>
 		<div id = "title-text">
-			<div id = "title">Cambridge</div>
-	  <div id = "subtitle">
-		  This map visualizes approximately 58255 menus items from 505 restaurants in Cambridge<a id="showMore" href="#"> ... more</a></div>
+			<div id = "title">
+				Cambridge
+			</div>
+		  	<div id = "subtitle">
+			  This map visualizes approximately 58255 menus items from 505 restaurants in Cambridge
+			  <a id="showMore" href="#"> ... more</a>
+			</div>
 		</div>
 	</div>
 	
-	
+	<div id = "left-column">
+		Click on:
+		<br/>
+		<a href="javascript:UpdateAll(fresh);">fresh</a>
+		<br/>
+		<a href="javascript:UpdateAll(fried);">fried</a>
+		<br/>
+		<a href="javascript:UpdateAll(chicken);">chicken</a>
+		<br/>
+		<a href="javascript:UpdateAll(special);">special</a>
+		<br/>
+		<a href="javascript:UpdateAll(vegetarian);">vegetarian</a>
+	</div>
 
 	
 	<div id = "footer">
@@ -73,15 +82,28 @@
 	</div>
 	<script type="text/javascript" charset="utf-8">
 	var csv = "cambridge_menus_noRes.csv"	
-	
 	</script>    
 		<div id="essayBox">
 			<div id='essayBox-close' class="glyphicon glyphicon-remove"></div>
 			<div id='essayContent'>
-				text placeholder
+				<p>
+					This map visualizes the 58225 food items served in 505 restaurants in Cambridge, MA.
+				</p>
+				<p>
+					Sometimes when recalling a neighborhood, a single restaurant comes to mind. 
+					However as a group, the restaurants of a city offer one version of its collective identity.
+					What are the different ways chicken is made? 
+					What is described as "fresh" or "special"? 
+					What do we "roast", "fry", or "bake"?
+					How many different "vegetarian" food items can you find in Cambridge?
+				</p>
+				<p>
+					Click on any of the keywords on the left or search for a term yourself
+				</p>
 			</div>
 		</div>
-  <script src="test_collapse_zoom.js"></script>
+  <script src="test_collapse_nozoom.js"></script>
+	<script src="static/javascripts/essay.js"></script>
 
     </body>
 </html>

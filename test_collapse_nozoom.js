@@ -5,6 +5,7 @@
 //TODO: add retaurant list?
 //TODO: add reverse tree
 
+
 var global = {
 	data:null,
 	searchTerm:"fresh"
@@ -21,9 +22,25 @@ $(function() {
 	queue()
 		.defer(d3.text, csv)
 		//.defer(d3.text, csv2)
-		
 		.await(dataDidLoad);
 })
+
+function searchFor() {
+    //document.getElementById("frm1").submit();
+	d3.select("#output").html("")
+	//console.log("searched for", enteredTerm)
+	if(frm1.searchTerm.value != ""){
+		UpdateAll(frm1.searchTerm.value)
+	}
+}
+
+$("#frm1").keyup(function(event){
+    if(event.keyCode == 13){
+        $("#submit").click();
+    }
+});
+
+
 function dataDidLoad(error, data1, data2) {
 	global.data1 = data1
 	//global.data2 = data2
@@ -31,16 +48,13 @@ function dataDidLoad(error, data1, data2) {
 	leftDictionary = {}
 	UpdateAll(global.searchTerm)
 	//drawLeftChart(convertTree(leftDictionary)[0])
-	
 	//filterTree(convertTree(dictionary1)[0])
-//	formatMenuIntoSentences(global.data2.toLowerCase(), global.searchTerm, dictionary2)
-//	drawChart(convertTree(dictionary2)[0],treesvg2)
-
+	//	formatMenuIntoSentences(global.data2.toLowerCase(), global.searchTerm, dictionary2)
+	//	drawChart(convertTree(dictionary2)[0],treesvg2)
 	frm1.searchTerm.value = ""
 }
 
 //TODO: expand all
-
 //function displayResults(){
 //	var displaystring = JSON.stringify(convertTree(topLevelDictionary)[0], null, 2)
 //	d3.select("#output").html("<span style=\"color:red\">Showing results for: "+global.searchTerm+"</span></br></br><pre>"+displaystring+"</pre>")
@@ -63,7 +77,7 @@ function UpdateAll(enteredTerm){
 	
 	//drawChart(treeData, baseSvg, svgGroup, side)
 	drawChart(rightData, baseSvg, rightGroup, "right")
-	drawChart(leftData, baseSvg, leftGroup, "left")
+	//drawChart(leftData, baseSvg, leftGroup, "left")
 	
 	frm1.searchTerm.value = ""
 	rightDictionary = {}
@@ -92,16 +106,8 @@ function flattenTree(tree, append) {
 function sortTree() {
     tree.sort(function(a, b) {
         return b.name > a.name ? 1 : -1;
-//        return b.sibling > a.sibling ? 1 : -1;	
+//      return b.sibling > a.sibling ? 1 : -1;	
     });
-}
-function searchFor() {
-    //document.getElementById("frm1").submit();
-	d3.select("#output").html("")
-	//console.log("searched for", enteredTerm)
-	if(frm1.searchTerm.value != ""){
-		UpdateAll(frm1.searchTerm.value)
-	}
 }
 
 document.onkeydown=function(){
@@ -214,7 +220,9 @@ d3.select(self.frameElement).style("height", "800px");
 function update(source, svg, subGroup, side) {
 	    //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 		if(side == "right"){
-			subGroup.attr("transform", "translate(" + parseInt(width/2) + "," + 0 + ")");
+			subGroup.attr("transform", "translate(" + 20 + "," + 0 + ")");
+			
+			//subGroup.attr("transform", "translate(" + parseInt(width/2) + "," + 0 + ")");
 		}else{
 			subGroup.attr("transform", "translate(" + width/2 + "," + 0 + ")");
 		}
@@ -255,8 +263,8 @@ function update(source, svg, subGroup, side) {
       .attr("r", 0)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
  
-  var textSizeScale = d3.scale.sqrt().domain([0,400]).range([0,50])
-  var textOpacityScale = d3.scale.linear().domain([0,400]).range([0,1])
+  var textSizeScale = d3.scale.sqrt().domain([0,400]).range([5,50])
+  var textOpacityScale = d3.scale.sqrt().domain([0,100]).range([0,1])
 
   nodeEnter.append("text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })

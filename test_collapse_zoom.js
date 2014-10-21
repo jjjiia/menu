@@ -7,10 +7,14 @@
 
 var global = {
 	data:null,
-	searchTerm:"tamarind"
+	searchTerm:"fresh"
 }
 var topLevelDictionary = {};
-
+var fresh = "fresh";
+var fried = "fried";
+var chicken = "chicken";
+var special = "special";
+var vegetarian = "vegetarian";
 $(function() {
 	// Window has loaded
 	queue()
@@ -172,7 +176,7 @@ function convertTree(dictionary){
 		}
 		output.count = count;
 		output.sibling = sibling
-		console.log(output)
+		//console.log(output)
 		return output;
 	});
 }
@@ -187,7 +191,7 @@ function joinOnlyChildren(dictionary){
 			dictionary.children[i].count = dictionary.children[i].count -1
 		}
 }
-	console.log(dictionary)
+	//console.log(dictionary)
 	return dictionary
 }
 /////DRAWING BELOW
@@ -574,7 +578,7 @@ function drawChart(treeData, side, baseSvg) {
 
 	        // Set widths between levels based on maxLabelLength.
 	        nodes.forEach(function(d) {
-				console.log(d.name.length)
+				//console.log(d.name.length)
 	            d.y = (d.depth * (maxLabelLength * 7)); //maxLabelLength * 10px
 	            // alternatively to keep a fixed scale one can set a fixed depth per level
 	            // Normalize for fixed-depth by commenting out below line
@@ -740,6 +744,29 @@ function drawChart(treeData, side, baseSvg) {
 	    centerNode(root);
 }	
 
-//console.log(JSON.stringify(topLevelDictionary, null, 2));
+var essayBoxShown = false;
+ $('#showMore').click(function(e){
+     e.preventDefault();
+     essayBoxShown = !essayBoxShown;
+     if (essayBoxShown) {
+         $('#essayBox').css('display', 'block');
+         $('#essayBox').animate({'opacity':1.0}, 500);
+         $(this).text(' ... view map ');
+     } else {
+         closeEssayBox();
+         $(this).text(' ... more ');
+     }
+   })
+   $('#essayBox-close').click(function(){
+//	   console.log("close")
+     closeEssayBox();
+     $('#showMore').text(' ... more ');
+   });
 
-//console.log(JSON.stringify(topLevelDictionary, null, 2));
+
+  function closeEssayBox(){
+   $('#essayBox').animate({'opacity':0.0}, 500, function () {
+     $('#essayBox').css('display', 'none');
+   })
+   essayBoxShown = false;
+ }

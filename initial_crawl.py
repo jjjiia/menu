@@ -13,22 +13,22 @@ latestDictionary = {}
 import time
 
 basecity = "boston"
-baseURL1 = ".menupages.com/restaurants/"
+baseURL1 = "menupages.com/restaurants/"
 baseURL2 = "/all-neighborhoods/all-cuisines/"
-neighborhoods = ["cambridge"]
+neighborhoods = ["brooklyn"]
 #neighborhoods = ["downtown-north-end","back-bay-beacon-hill-south-end","fenway-symphony-jamaica-plain","brookline-brighton-allston"]
 def download_craigslist(page_count = 1, limit = 5):
     data = []
     duplicateCount = 0
     uniqueCount = 0
-    page_count = 10
+    page_count = 48
     for i in range(page_count):
 		#for neightborhoods
         #link = 'http://'+basecity+baseURL1+baseURL2 + str(i+1)
 		
 		#for larger areas
-        link = 'http://'+basecity+baseURL1 +city+baseURL2 + str(i+1)
-        #print link
+        link = 'http://'+baseURL1 +city+baseURL2 + str(i+1)
+        print link
         soup = BeautifulSoup(urllib2.urlopen(link).read())
         #x =  soup.body.article.section.div
         x =  soup.find("div",{"id":"searchresults"})
