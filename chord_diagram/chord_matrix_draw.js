@@ -3,7 +3,7 @@
       //*******************************************************************
       d3.csv(csv, function (error, data) {
         var mpr = chordMpr(data);
-		
+		//console.log("this is the csv you are visualizing:"+csv)
         mpr
           .addValuesToMap('term1')
           .setFilter(function (row, a, b) {
@@ -13,12 +13,23 @@
             if (!recs[0]) return 0;
             return +recs[0].count;
           });
-        drawChords(mpr.getMatrix(), mpr.getMap());
+        drawChords(mpr.getMatrix(), mpr.getMap(), data);
       });
       //*******************************************************************
       //  DRAW THE CHORD DIAGRAM
       //*******************************************************************
-      function drawChords (matrix, mmap) {
+      function drawChords (matrix, mmap, data) {
+		  var foodsDictionary ={}
+		  var restaurantsDictionary ={}
+		  for(var i in data){
+			  var terms = [data[i].term1, data[i].term2]
+			  var foods = data[i].foods
+			  var restaurants = data[i].restaurants
+			  foodsDictionary[terms] = foods
+			  restaurantsDictionary[terms] = restaurants
+		  }
+		 // console.log(restaurantsDictionary)
+
         var w =650, h = 650, r1 = h / 2, r0 = r1 - 70;
 		var totalMenuItems = 58255
         var fill = d3.scale.ordinal()
@@ -47,7 +58,7 @@
         var rdr = chordRdr(matrix, mmap);
         chord.matrix(matrix);
 		var opacityScale = d3.scale.sqrt().domain([0,.4]).range([0.2,.5])
-		var fontScale = d3.scale.sqrt().domain([0,20000]).range([6,14])
+		var fontScale = d3.scale.sqrt().domain([0,25000]).range([6,14])
 		
         var g = svg.selectAll("g.group")
             .data(chord.groups())
@@ -89,7 +100,7 @@
 					//return "#000"
 				})
                 .attr("d", d3.svg.chord().radius(r0))
-                .on("mouseover", function (d) {
+                .on("mouseover", function (d,i) {					
                   d3.select("#tooltip")
                     .style("visibility", "visible")
                     .html(chordTip(rdr(d)))
@@ -99,12 +110,30 @@
 			//	.style("opacity", function(d){return opacityScale(d.target.value)})
                 .on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") });
 
+				function formatFoodsList(input){
+					input = input.split(",")
+					var inputLength = input.length
+					var output = ""
+					for(var i in input){
+						output = output+input[i]+"</br>"
+					}
+					return output
+				}
+
           function chordTip (d) {
-  			//console.log(d)
-			  
+  			//console.log(d)			  
             var p = d3.format(".2%"), q = d3.format(",.3r")
-            return p(d.svalue/d.stotal) + " (" + q(d.svalue) + ")of menu items containing "+ d.sname 
-               + " also contains " + d.tname
+			//console.log(restaurantsDictionary[[d.sname, d.tname]])
+			var foodsLength = (foodsDictionary[[d.sname, d.tname]]).split(",").length
+			var restaurantsLength = (restaurantsDictionary[[d.sname, d.tname]]).split(",").length
+			
+			//d3.select("#restaurants").html(foodsLength + " foods from " + restaurantsLength+ " restaurants")
+			//d3.select("#foods").html()
+			d3.select("#restaurants").html(formatFoodsList(restaurantsDictionary[[d.sname, d.tname]]))
+			d3.select("#foods").html(formatFoodsList(foodsDictionary[[d.sname, d.tname]]))
+			
+            return p(d.svalue/d.stotal) + " of menu items containing "+ d.sname 
+               + " also contains " + d.tname + "</br>"+ foodsLength + " dishes from " + restaurantsLength+ " restaurants"
              // + (d.sname === d.tname ? "": ("<br/>while...<br/>"
              // + p(d.tvalue/d.ttotal) + " (" + q(d.tvalue) + ") of "
              // + d.tname + " also has " + d.sname
@@ -113,8 +142,8 @@
 
           function groupTip (d) {
             var p = d3.format(".1%"), q = d3.format(",.3r")
-			console.log(d)
-            return "placeholder of item total and percentage"
+			//console.log(d)
+            return ""
 			//return  p(d.gvalue/totalMenuItems)+" or "+ q(d.gvalue) +" items has "+ d.gname 
                // + p(d.gvalue/d.mtotal) + " of Matrix Total (" + q(d.mtotal) + ")"
           }
@@ -125,8 +154,7 @@
               .html(groupTip(rdr(d)))
               //.style("top", function () { return (d3.event.pageY - 20)+"px"})
               //.style("left", function () { return (d3.event.pageX - 130)+"px";})
-
-            chordPaths.classed("fade", function(p) {
+             chordPaths.classed("fade", function(p) {
               return p.source.index != i
                   && p.target.index != i;
             });

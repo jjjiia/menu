@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
 
-	<link rel="stylesheet" type="text/css" href="static/stylesheets/menu_style2.css"> </style>
+	<link rel="stylesheet" type="text/css" href="static/stylesheets/chord_style.css"> </style>
 	
       <!-- Google Analytics
       <script>
@@ -35,12 +35,13 @@
 </head>
 
 <body>
-	<div id = "restaurantList"></div>
     <div id="tooltip"></div>
     <script src="lib/d3.js"></script>
     <script src="lib/underscore.js"></script>
     <script src="js/mapper.js"></script>
     <div id = "container"></div>
+	<div id = "restaurants">Restaurants</div>
+	<div id = "foods">Foods</div>
 	<div id = "header">
 		<div id = "logo">
 			<a id="logo" href="http://youarehere.cc"><img src="static/images/logo.jpg" style="width: 60px"></a>
@@ -80,7 +81,7 @@ This data comes from the menupages site.
 				</p>
 			</div>
 		</div>
-	<script>var csv = "cambridge_chicken.csv"</script>
+	<script>var csv = "cambridge_keyword_menu_res.csv"</script>
 <script src="static/javascripts/essay.js"></script>
 <script src="chord_matrix_draw.js"></script>
 

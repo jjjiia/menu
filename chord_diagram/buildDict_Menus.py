@@ -61,13 +61,49 @@ def testMatrix(testarray):
 	return dictionary
 	
 def buildWordLinks():
-	with open('philadelphia_bucks-county_menus_noRes.csv', 'rb') as csvfile:
+	with open('cambridge_menus.csv', 'rb') as csvfile:
 		spamreader = csv.reader(csvfile)
 		for row in spamreader:
-			rowArray = str(row).split(" ")
+			rowArray = row[0].split(" ")[0:-1]
+			#print rowArray
 			testMatrix(rowArray)
 	return sortDictionary(dictionary)
 	
-print buildWordLinks()
+#print buildWordLinks()
 
+def appendMenuItems(dictionary):
+	#print dictionary
+	with open('cambridge_menus.csv', 'rb') as csvfile:
+		spamreader = csv.reader(csvfile)
+		outputFile = open("cambridge_keyword_menu_res.csv", "w")
+		outputWriter = csv.writer(outputFile)
+		for key, value in dictionary:
+			#print key,value
+			csvfile.seek(0)
+			menuItemsArray = []
+			restaurantsArray = []
+			keyArray = key.split(",")
+			key1 = keyArray[0]
+			key2 = keyArray[1]
+			wordPairArray = [keyArray[0],keyArray[1],value]
+			
+			#print key1, key2
+			for row in spamreader:
+				rowArray = row[0].split(" ")[0:-1]
+				#print rowArray
+				restaurant = row[0].split(" ")[-1]
+				formatedRestaurant = restaurant.split("-")
+				formatedRestaurant = ' '.join(formatedRestaurant)
+				#print formatedRestaurant
+				if key1 in rowArray and key2 in rowArray:
+					rowNoRes = ' '.join(rowArray)
+					menuItemsArray.append(rowNoRes)
+					if restaurant not in restaurantsArray:
+						restaurantsArray.append(restaurant)
+			#print restaurantsArray
+			wordPairArray.append(menuItemsArray)
+			wordPairArray.append(restaurantsArray)
+			outputWriter.writerow(wordPairArray)
+			#print wordPairArray
+appendMenuItems(buildWordLinks())
 	
