@@ -34,7 +34,7 @@ teststring = "froj deliciously sweet vegan soy milk orange juice vanilla"
 dictionary = {}
 keys = []
 
-ignoreWords = ["and","over","assorted","topped","choice","add","$","or","served","all","another","any","anybody","anyone","anything","both","each","either","everybody","everyone","everything","free","few","H","he","her","hers","herself","him","himself","his","I","I","it","its","itself","M","many","me mine","more","most","much","my","myself","no","neither","no one","nobody","none","nothing","on","one","other","others","our","ours","ourselves","same","several","she","some","somebody","someone","something","the","that","their","theirs","them","themselves","these","they","this","those","us","with","we","what","whatever","which","whichever","who","whoever","whom","whomever","whose","Y","you","your","yours","yourself","yourselves"]
+ignoreWords = ["sgl","and","over","assorted","topped","choice","add","$","or","served","all","another","any","anybody","anyone","anything","both","each","either","everybody","everyone","everything","free","few","H","he","her","hers","herself","him","himself","his","I","I","it","its","itself","M","many","me mine","more","most","much","my","myself","no","neither","no one","nobody","none","nothing","on","one","other","others","our","ours","ourselves","same","several","she","some","somebody","someone","something","the","that","their","theirs","them","themselves","these","they","this","those","us","with","we","what","whatever","which","whichever","who","whoever","whom","whomever","whose","Y","you","your","yours","yourself","yourselves"]
 
 def buildDictionary(dictionary, key):
 	dictionary[key] = dictionary.get(key,0)+1
@@ -61,10 +61,10 @@ def testMatrix(testarray):
 	return dictionary
 	
 def buildWordLinks():
-	with open('cambridge_menus.csv', 'rb') as csvfile:
+	with open('cambridge_menus_address.csv', 'rb') as csvfile:
 		spamreader = csv.reader(csvfile)
 		for row in spamreader:
-			rowArray = row[0].split(" ")[0:-1]
+			rowArray = row[0].split(" ")
 			#print rowArray
 			testMatrix(rowArray)
 	return sortDictionary(dictionary)
@@ -73,10 +73,12 @@ def buildWordLinks():
 
 def appendMenuItems(dictionary):
 	#print dictionary
-	with open('cambridge_menus.csv', 'rb') as csvfile:
+	with open('cambridge_menus_address.csv', 'rb') as csvfile:
 		spamreader = csv.reader(csvfile)
-		outputFile = open("cambridge_keyword_menu_res.csv", "w")
+		outputFile = open("cambridge_address_test2.csv", "w")
 		outputWriter = csv.writer(outputFile)
+		outputWriter.writerow(["term1","term2","count","foods","restaurants"])
+		
 		for key, value in dictionary:
 			#print key,value
 			csvfile.seek(0)
@@ -89,17 +91,19 @@ def appendMenuItems(dictionary):
 			
 			#print key1, key2
 			for row in spamreader:
-				rowArray = row[0].split(" ")[0:-1]
+				rowArray = row[0].split(" ")
 				#print rowArray
-				restaurant = row[0].split(" ")[-1]
-				formatedRestaurant = restaurant.split("-")
-				formatedRestaurant = ' '.join(formatedRestaurant)
+				restaurant = row[1:]
+				#address = row[2:]
+				#print address
+				#formatedRestaurant = restaurant.split("-")
+				formatedRestaurant = ' '.join(restaurant)
 				#print formatedRestaurant
 				if key1 in rowArray and key2 in rowArray:
 					rowNoRes = ' '.join(rowArray)
 					menuItemsArray.append(rowNoRes)
 					if restaurant not in restaurantsArray:
-						restaurantsArray.append(restaurant)
+						restaurantsArray.append([restaurant])
 			#print restaurantsArray
 			wordPairArray.append(menuItemsArray)
 			wordPairArray.append(restaurantsArray)

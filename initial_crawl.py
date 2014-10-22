@@ -13,9 +13,9 @@ latestDictionary = {}
 import time
 
 basecity = "boston"
-baseURL1 = "menupages.com/restaurants/"
+baseURL1 = ".menupages.com/restaurants/"
 baseURL2 = "/all-neighborhoods/all-cuisines/"
-neighborhoods = ["brooklyn"]
+neighborhoods = ["cambridge"]
 #neighborhoods = ["downtown-north-end","back-bay-beacon-hill-south-end","fenway-symphony-jamaica-plain","brookline-brighton-allston"]
 def download_craigslist(page_count = 1, limit = 5):
     data = []
@@ -25,9 +25,8 @@ def download_craigslist(page_count = 1, limit = 5):
     for i in range(page_count):
 		#for neightborhoods
         #link = 'http://'+basecity+baseURL1+baseURL2 + str(i+1)
-		
 		#for larger areas
-        link = 'http://'+baseURL1 +city+baseURL2 + str(i+1)
+        link = 'http://'+basecity+baseURL1 +city+baseURL2 + str(i+1)
         print link
         soup = BeautifulSoup(urllib2.urlopen(link).read())
         #x =  soup.body.article.section.div
@@ -56,6 +55,25 @@ def download_craigslist(page_count = 1, limit = 5):
             menu = sidesoup.find("div",{"id":"restaurant-menu"})
             table_body = menu.find_all('tbody')
             rows = menu.find_all('tr')
+            latlng = sidesoup.find("a",{"title":"open Google Maps in a new window"})
+            #print address
+            latlngIndex = str(latlng).find("markers")
+            #print addressIndex
+            coordinates = str(latlng)[latlngIndex:latlngIndex+30]
+            coordinates = coordinates.split("=")[1]
+            coordinates = coordinates.split("&")[0]
+            #print coordinates
+            zipcode = sidesoup.find("span",{"class":"addr street-address"})
+            zipcode = re.sub("<.*?>", " ", str(zipcode).lower())
+            address = sidesoup.find("span",{"class":"postal-code"})
+            address = re.sub("<.*?>", " ", str(address).lower())
+            restType = sidesoup.find("title")
+            restType = re.sub("<.*?>", " ", str(restType).lower())
+            #print restType
+            restType = str(restType).split("menupages")[1]
+            restType = restType.split("search")[0]
+            print restType
+            #print zipcode, address
             for row in rows:
 				#print row
 				test = re.sub("<.*?>", " ", str(row).lower())
@@ -87,8 +105,8 @@ def download_craigslist(page_count = 1, limit = 5):
 				#data.append(test+" "+restaurantName)
             #cleanMenu = [str(l),data]
 				#print test+" "+restaurantName
-				spamwriter.writerow([test+"."])
-           	 	#print cleanMenu
+				spamwriter.writerow([test,restaurantName,coordinates,address,zipcode,[restType]])
+				#print [test,restaurantName,coordinates]
             print restaurantName
 #cities = ["brookline-brighton-allston","downtown-north-end", "fenway-symphony-jamaica-plain","back-bay-beacon-hill-south-end"]
 #neighborhoods = ["cambridgeport","harvard-square","east-cambridge","central-sq-inman-sq","porter-sq-fresh-pond"]
@@ -116,7 +134,7 @@ if __name__ == "__main__":
 		   time.sleep(10)
 		   city = neighborhoods[i]
 		   print city
-		   outputfile = open(city+"_menus_noRes.csv","wb")
+		   outputfile = open(city+"_menus_address.csv","wb")
 		   spamwriter = csv.writer(outputfile)
 		   #spamwriter.writerow(["url","menu"])
 		   while True:

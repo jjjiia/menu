@@ -25,6 +25,7 @@
 			  var terms = [data[i].term1, data[i].term2]
 			  var foods = data[i].foods
 			  var restaurants = data[i].restaurants
+			  console.log(restaurants.split(",")[1],restaurants.split(",")[2])
 			  foodsDictionary[terms] = foods
 			  restaurantsDictionary[terms] = restaurants
 		  }
@@ -33,17 +34,17 @@
         var w =650, h = 650, r1 = h / 2, r0 = r1 - 70;
 		var totalMenuItems = 58255
         var fill = d3.scale.ordinal()
-            .domain(d3.range(7))
-            .range(["#A0CE51","#658C5F","#5CDE8C","#77E63A","#AEDA94","#518934","#58C74A"]);
+            .domain(d3.range(10))
+            .range(["#9ACB48","#849769","#52DC8F","#67DE34","#92D09B","#6D9641","#49A32E","#5FDA67","#4DA268","#A4CE7A"]);
         
         var chord = d3.layout.chord()
             .padding(.02)
-            .sortGroups(d3.ascending)
-            .sortChords(d3.ascending);
+            .sortGroups(d3.descending)
+            .sortChords(d3.descending);
 
         var arc = d3.svg.arc()
             .innerRadius(r0)
-            .outerRadius(r0 + 5);
+            .outerRadius(r0 + 1);
 
         var svg = d3.select("#container").append("svg:svg")
             .attr("width", w)
@@ -85,7 +86,7 @@
 				return d.angle > Math.PI ? "end" : null; })
             .attr("transform", function(d) {
               return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
-                  + "translate(" + (r0 +7) + ")"
+                  + "translate(" + (r0 +8) + ")"
                   + (d.angle > Math.PI ? "rotate(180)" : "");
             })
             .text(function(d) { return rdr(d).gname; });
@@ -108,14 +109,14 @@
                     //.style("left", function () { return (d3.event.pageX - 100)+"px";})
                 })
 			//	.style("opacity", function(d){return opacityScale(d.target.value)})
-                .on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") });
+                //.on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") });
 
 				function formatFoodsList(input){
 					input = input.split(",")
 					var inputLength = input.length
 					var output = ""
-					for(var i in input){
-						output = output+input[i]+"</br>"
+					for(var i =0; i<15; i++){
+						output = output+"<span style=\"color:"+fill(i)+"\">"+input[i]+"</span></br>"
 					}
 					return output
 				}
@@ -124,17 +125,18 @@
   			//console.log(d)			  
             var p = d3.format(".2%"), q = d3.format(",.3r")
 			//console.log(restaurantsDictionary[[d.sname, d.tname]])
-			var foodsLength = (foodsDictionary[[d.sname, d.tname]]).split(",").length
-			var restaurantsLength = (restaurantsDictionary[[d.sname, d.tname]]).split(",").length
-			
+			var foodsLength = (foodsDictionary[[d.sname, d.tname]]).split("\', \'").length
+			var restaurantsLength = (restaurantsDictionary[[d.sname, d.tname]]).split("\']\"], ['").length
+			console.log(foodsDictionary[[d.sname, d.tname]])
 			//d3.select("#restaurants").html(foodsLength + " foods from " + restaurantsLength+ " restaurants")
 			//d3.select("#foods").html()
-			d3.select("#restaurants").html(formatFoodsList(restaurantsDictionary[[d.sname, d.tname]]))
-			d3.select("#foods").html(formatFoodsList(foodsDictionary[[d.sname, d.tname]]))
+			//d3.select("#restaurants").html(formatFoodsList(restaurantsDictionary[[d.sname, d.tname]]))
+			//d3.select("#foods").html(formatFoodsList(foodsDictionary[[d.sname, d.tname]]))
 			
             return p(d.svalue/d.stotal) + " of menu items containing "+ d.sname 
-               + " also contains " + d.tname + "</br>"+ foodsLength + " dishes from " + restaurantsLength+ " restaurants"
-             // + (d.sname === d.tname ? "": ("<br/>while...<br/>"
+               + " also contains " + d.tname + "</br>They can be found in "+ foodsLength + " dishes from " + restaurantsLength+ " Restaurants"
+			  
+			 // + (d.sname === d.tname ? "": ("<br/>while...<br/>"
              // + p(d.tvalue/d.ttotal) + " (" + q(d.tvalue) + ") of "
              // + d.tname + " also has " + d.sname
 		  //))
