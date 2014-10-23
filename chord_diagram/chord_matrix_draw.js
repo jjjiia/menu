@@ -14,23 +14,61 @@
             return +recs[0].count;
           });
         drawChords(mpr.getMatrix(), mpr.getMap(), data);
+		d3.select(".foodsTab").attr("color", "#ffaaff")
+		d3.select("#map").style("visibility", "hidden")
+		d3.select("#foods").style("visibility", "visible")
+		d3.select("#cuisines").style("visibility", "hidden") 
+		//drawMap( data)
       });
+	  
+	function showRestaurants(){
+		d3.select("#map").style("visibility", "visible")
+		d3.select("#foods").style("visibility", "hidden") 
+		//d3.select("#cuisines").style("visibility", "hidden") 
+	}
+	function showFoods(){
+		d3.select("#map").style("visibility", "hidden") 
+		d3.select("#foods").style("visibility", "visible")
+		//d3.select("#cuisines").style("visibility", "hidden") 
+	}	  
+	function showCuisines(){
+		d3.select("#map").style("visibility", "hidden") 
+		d3.select("#foods").style("visibility", "hidden") 
+		d3.select("#cuisines").style("visibility", "visible")
+	}
+	  function formatData(data){
+		  var foodsDictionary ={}
+		  var restaurantsDictionary ={}
+		  var cuisinesDictionary ={}
+		  var coordinatesDictionary ={}
+		  
+		  for(var i in data){
+			  var terms = [data[i].term1, data[i].term2]
+			  var foods = data[i].foods
+			  var restaurants = data[i].restaurant
+			  var cuisines = data[i].type
+			  var coordinates = data[i].coordinates
+			  //console.log(restaurants, cuisines, coordinates)
+			  foodsDictionary[terms] = foods
+			  restaurantsDictionary[terms] = restaurants
+			  cuisinesDictionary[terms] = cuisines
+			  coordinatesDictionary[terms] = coordinates
+		  }
+		  //console.log(foodsDictionary)
+		  return [foodsDictionary, restaurantsDictionary, coordinatesDictionary, cuisinesDictionary]
+	  }
       //*******************************************************************
       //  DRAW THE CHORD DIAGRAM
       //*******************************************************************
       function drawChords (matrix, mmap, data) {
-		  var foodsDictionary ={}
-		  var restaurantsDictionary ={}
-		  for(var i in data){
-			  var terms = [data[i].term1, data[i].term2]
-			  var foods = data[i].foods
-			  var restaurants = data[i].restaurants
-			  console.log(restaurants.split(",")[1],restaurants.split(",")[2])
-			  foodsDictionary[terms] = foods
-			  restaurantsDictionary[terms] = restaurants
-		  }
+		 
 		 // console.log(restaurantsDictionary)
-
+		var foodsDictionary = formatData(data)[0]
+		var restaurantsDictionary = formatData(data)[1]
+		var cuisinesDictionary = formatData(data)[3]
+		var coordinatesDictionary = formatData(data)[2]
+		//console.log(coordinatesDictionary)
+		
         var w =650, h = 650, r1 = h / 2, r0 = r1 - 70;
 		var totalMenuItems = 58255
         var fill = d3.scale.ordinal()
@@ -108,31 +146,48 @@
                     //.style("top", function () { return (d3.event.pageY - 20)+"px"})
                     //.style("left", function () { return (d3.event.pageX - 100)+"px";})
                 })
+				.on("click", function (d,i) {					
+                  d3.select("#tooltip")
+                    .style("visibility", "visible")
+                    .html(chordTip(rdr(d)))
+					 })
 			//	.style("opacity", function(d){return opacityScale(d.target.value)})
                 //.on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") });
 
+				function formatRestaurantsList(input){
+					input = input.split(",")
+					var inputLength = input.length
+					var output = ""
+					for(var i =0; i<input.length; i++){
+						output = output+"<span style=\"color:"+fill(i)+"\">"+input[i].replace("\'", "").replace("\'", "").replace("[", "").replace("]", "")+"</span></br>"
+					}
+					return output
+				}
 				function formatFoodsList(input){
 					input = input.split(",")
 					var inputLength = input.length
 					var output = ""
-					for(var i =0; i<15; i++){
-						output = output+"<span style=\"color:"+fill(i)+"\">"+input[i]+"</span></br>"
+					for(var i =0; i<input.length; i++){
+						var shortenedName = input[i].split(" ").slice(0, 10);
+						var shortenedName = shortenedName.join(" ");
+						output = output+"<span style=\"color:"+fill(i)+"\">"+shortenedName.replace("\'", "").replace("\'", "").replace("[", "").replace("]", "")+"</span></br>"
 					}
 					return output
 				}
-
           function chordTip (d) {
   			//console.log(d)			  
             var p = d3.format(".2%"), q = d3.format(",.3r")
 			//console.log(restaurantsDictionary[[d.sname, d.tname]])
 			var foodsLength = (foodsDictionary[[d.sname, d.tname]]).split("\', \'").length
-			var restaurantsLength = (restaurantsDictionary[[d.sname, d.tname]]).split("\']\"], ['").length
-			console.log(foodsDictionary[[d.sname, d.tname]])
+			var restaurantsLength = (restaurantsDictionary[[d.sname, d.tname]]).split("\'").length
+			//console.log(foodsDictionary[[d.sname, d.tname]])
 			//d3.select("#restaurants").html(foodsLength + " foods from " + restaurantsLength+ " restaurants")
 			//d3.select("#foods").html()
-			//d3.select("#restaurants").html(formatFoodsList(restaurantsDictionary[[d.sname, d.tname]]))
+			d3.select("#map").html(formatRestaurantsList(restaurantsDictionary[[d.sname, d.tname]]))
 			//d3.select("#foods").html(formatFoodsList(foodsDictionary[[d.sname, d.tname]]))
-			
+	  	  	d3.select("#foods").html(formatFoodsList(foodsDictionary[[d.sname, d.tname]]))
+	  	  	//d3.select("#cuisines").html(formatFoodsList(cuisinesDictionary[[d.sname, d.tname]]))
+			//	drawMap(coordinatesDictionary[[d.sname, d.tname]])
             return p(d.svalue/d.stotal) + " of menu items containing "+ d.sname 
                + " also contains " + d.tname + "</br>They can be found in "+ foodsLength + " dishes from " + restaurantsLength+ " Restaurants"
 			  
@@ -162,3 +217,33 @@
             });
           }
       }
+
+	  function drawMap(data){
+		  console.log("draw map")
+  	  	var map = d3.select("#map")
+				.append("svg")
+				.attr('height', 400)
+				.attr('width',400);
+		var projection = d3.geo.mercator()
+						.center([ -71.101191, 42.369360])
+						.scale(6000);
+		var path = d3.geo.path().projection(projection);
+		
+		d3.json("cambridge_boundary.geojson", function(error, cambridge) {
+		  if (error) return console.error(error);
+		  map.append("path")
+  			.data(cambridge.features)
+			.enter()
+			.append('path')
+			.attr('class', 'borough')
+			.attr('fill', 'black')
+			.attr('stroke', 'black')
+			.attr('stroke-opacity', 0.1)
+			.attr('d', path)
+		});
+		
+		
+		
+		
+		//console.log(data)
+	  }

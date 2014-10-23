@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-	  <meta charset="UTF-8">
+	<meta charset="UTF-8">
 	  
 	<title>Menus in Cambridge</title>
 	<script src="static/javascripts/d3.v3.min.js"></script>
@@ -15,7 +15,6 @@
     <script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="static/javascripts/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="static/stylesheets/jquery-ui.css" />
-	<link rel="stylesheet" href="static/bootstrap-3.1.1-dist/css/bootstrap.min.css">
 	<script src="static/javascripts/jquery-ui.min.js"></script>
 	<link href="static/bootstrap-3.1.1-dist/css/bootstrap-glyphicons.css" rel="stylesheet">
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
@@ -40,10 +39,14 @@
     <script src="lib/underscore.js"></script>
     <script src="js/mapper.js"></script>
     <div id = "container"></div>
-	<div id = "restaurants"></div>
-	<div id = "foods"></div>
-	<div id = "map">map</div>
-	<div id = "tabs">Restaurants | Foods | Cuisines </div>
+	<div id = "foods">Rollover Links</div>
+	<div id = "map">Rollover Links</div>
+	<div id = "tabs">
+		<span class = "foodsTab"><a href="javascript:showFoods();">Foods</a></span>
+		 | 
+		<span class = "restaurantsTab"><a href="javascript:showRestaurants();">Restaurants</a></span>
+
+	   </div>
 	
 	<div id = "header">
 		<div id = "logo">
@@ -74,20 +77,27 @@
 			<div id='essayBox-close' class="glyphicon glyphicon-remove"></div>
 			<div id='essayContent'>
 				<p>
-This map visualizes the 1000 most popular pairings of key terms found in 41416 food items served in 505 restaurants in Cambridge, MA.
+This map visualizes the most popular word pairings found in restaurant menus in Cambridge. It describes how ingredients, descriptors, and cooking methods interact with each other in Cambridge restaurants.
+</p>
+<p>
+Food is often evocative, the taste and smell often brings back memories not just of the food itself but also of the place and context.  Therefore, people's memories of cities are often defined in part by the food that they eat.  This map gives a unique picture of the city through the foods that are served.
+</p>
+<p>
+Further, the most common foods served in restaurants in a city are a proxy for the foods that are most imported into the city.  Having a sense of the market helps to understand how best to create local supply chains.  For example, this data suggests that it might be interesting for our cities to have more chickens.  
+</p>
+<p>
+To view this map, hover over a word to see that word in isolation, and hover over a line to see the specific menu items that contain those two words.
+</p>
+<p>
+To create this map, we crawled 41416 menu items from 505 restaurants in Cambridge.  We show the top 1000 word pairs listed in those menus, and the width of the line between two words connotes the frequency that the two words occur in the same menu item. 
+The word pairs are converted into a matrix and visualized using the <a href="https://github.com/mbostock/d3/wiki/Chord-Layout"> chord layout in the d3 library</a> and javascript libraries written by <a href="https://github.com/sghall"> @sghall</a>. 
 				</p>
 				<p>
-Sometimes when recalling a neighborhood, a single restaurant comes to mind. As a group, the restaurants of a city offer one version of its collective identity. 
-				</p>
-				<p>
-While every city's menus counts chicken and cheese among its most frequently occuring terms, how each item interact with others on a menu are reflections of individual cities. 					
-				</p>
-				<p>
-This data comes from menupages.
+This data comes from <a href = "http://boston.menupages.com/">menupages</a>.
 				</p>
 			</div>
 		</div>
-	<script>var csv = "cambridge_address_test.csv"</script>
+	<script>var csv = "cambridge_address_test5.csv"</script>
 <script src="static/javascripts/essay.js"></script>
 <script src="chord_matrix_draw.js"></script>
 

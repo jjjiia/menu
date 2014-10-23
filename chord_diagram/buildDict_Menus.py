@@ -3,7 +3,8 @@ import csv
 import json
 import collections
 import operator
-
+import re
+import string
 endsInS = {}
 
 
@@ -71,19 +72,30 @@ def buildWordLinks():
 	
 #print buildWordLinks()
 
+def clearup(s, chars):
+    return re.sub('[%s]' % chars, '', s).lower()
+ 
+#s = 'This is %a t1e22st !st4ring6 w.it6h 87embed766ded punct,:ua-tion and nu=mbe]rS6.'
+ 
+#print clearup(s, string.punctuation+string.digits)
+ 
 def appendMenuItems(dictionary):
 	#print dictionary
 	with open('cambridge_menus_address.csv', 'rb') as csvfile:
 		spamreader = csv.reader(csvfile)
-		outputFile = open("cambridge_address_test2.csv", "w")
+		outputFile = open("cambridge_address_test5.csv", "w")
 		outputWriter = csv.writer(outputFile)
-		outputWriter.writerow(["term1","term2","count","foods","restaurants"])
+		outputWriter.writerow(["term1","term2","count","foods","restaurant","coordinates","zipcode","address","type"])
 		
 		for key, value in dictionary:
 			#print key,value
 			csvfile.seek(0)
 			menuItemsArray = []
 			restaurantsArray = []
+			restaurantTypeArray = []
+			addressArray = []
+			zipcodeArray = []
+			coordinatesArray = []
 			keyArray = key.split(",")
 			key1 = keyArray[0]
 			key2 = keyArray[1]
@@ -93,20 +105,36 @@ def appendMenuItems(dictionary):
 			for row in spamreader:
 				rowArray = row[0].split(" ")
 				#print rowArray
-				restaurant = row[1:]
-				#address = row[2:]
-				#print address
-				#formatedRestaurant = restaurant.split("-")
-				formatedRestaurant = ' '.join(restaurant)
-				#print formatedRestaurant
+				restaurant = row[1]
+				coordinates = row[2]
+				zipcode = row[3]
+				address = row[4]
+				restaurantType = row[5]
+				formatedRestaurant = restaurant.split("-")
+				formatedRestaurant[-1] = clearup(formatedRestaurant[-1], string.punctuation+string.digits)
+				formatedRestaurant = ' '.join(formatedRestaurant)
+				#formatedRestaurant = clearup(formatedRestaurant, string.punctuation+string.digits)
+				#print restaurant, formatedRestaurant
 				if key1 in rowArray and key2 in rowArray:
 					rowNoRes = ' '.join(rowArray)
 					menuItemsArray.append(rowNoRes)
-					if restaurant not in restaurantsArray:
-						restaurantsArray.append([restaurant])
+					if formatedRestaurant not in restaurantsArray:
+						#print "no", formatedRestaurant, restaurantsArray
+						restaurantsArray.append(formatedRestaurant)
+						coordinatesArray.append(coordinates)
+						addressArray.append(address)
+					if zipcode not in zipcodeArray:
+						zipcodeArray.append(zipcode)
+					if restaurantType not in restaurantTypeArray:
+						restaurantTypeArray.append(restaurantType)
+
 			#print restaurantsArray
 			wordPairArray.append(menuItemsArray)
 			wordPairArray.append(restaurantsArray)
+			wordPairArray.append(coordinatesArray)
+			wordPairArray.append(zipcodeArray)
+			wordPairArray.append(addressArray)
+			wordPairArray.append(restaurantTypeArray)
 			outputWriter.writerow(wordPairArray)
 			#print wordPairArray
 appendMenuItems(buildWordLinks())
